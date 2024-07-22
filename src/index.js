@@ -48,50 +48,6 @@ io.on("connection", (socket) => {
 const route = require('./controller/route')
 route(app)
 
-
-// test database 
-// const Conversation = require('./model/Conversation');
-
-// const user = require('./model/User')
-// const pool = require('./model/UserPoolConversation')
-// const person  = require('./model/toPerson')
-
-// const toperon = new person({
-//     name: "hcmut", 
-//     img: "", 
-//     id_conversation: "123", 
-//     number: 0, 
-//     recentMessage: "", 
-//     recentTime: ""
-// })
-
-// const poolconver = new pool({
-//     pool_conversation_id: "234", 
-//     pivot: 1, 
-//     people: [toperon]
-// })
-
-// poolconver.save()
-
-// const conver = new Conversation({
-//     id: 1, 
-//     content: [],
-// });
-// conver.save()
-// const Message = require('./model/Message');
-// const Mess = new Message({
-//     from: 'Tuankiet', 
-//     to: 'Tuankiet',
-//     content: 'Hahahahaha'
-// }); 
-// Mess.save()
-
-// Conversation.findOneAndUpdate(
-//     {id: 2},
-//     {$push: {content: Mess}}, 
-//     {new: true, upsert: true}
-// ).then(res => console.log("Updated!!!")) 
-
 const port = 3000;
 
 //launch port 
