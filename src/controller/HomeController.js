@@ -5,7 +5,7 @@ const { getMinuteAndHour } = require('../util/AnalyzeTime');
 
 class HomeController {
     HomePage(req, res, data) {
-        console.log("render", data)
+        // console.log("render", data)
         res.render('home', {layout: 'main', data:data })
     }
 

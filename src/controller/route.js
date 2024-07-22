@@ -1,3 +1,4 @@
+const ConversationController = require('./ConversationController')
 const homeController = require('./HomeController')
 const loginController = require('./LoginController')
 
@@ -14,6 +15,9 @@ function Route(app) {
         
     })
 
+    app.get('/chat/:id', async (req, res) => {
+        await ConversationController.LoadConversationById(req, res)      
+    })
 }
 
 

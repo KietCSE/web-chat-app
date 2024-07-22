@@ -135,8 +135,13 @@ body {
     overflow: hidden;
 }
 
+.chat-list .blockchat.active {
+    background-color:#009688;
+}
+
+
 .chat-list .blockchat:hover {
-    background-color: #dcded6;
+    background-color: #009688;
 }
 
 .chat-list .blockchat .imgchat {

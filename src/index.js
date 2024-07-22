@@ -41,7 +41,7 @@ io.on("connection", (socket) => {
     socket.on('disconnect', () => {
         console.log(`Client disconnect: ${socket.id}`)
         onlineList.MakeOfflineBySocketID(socket.id)
-        console.log(onlineList.online)
+        console.log("online", onlineList.online)
     })
 });
 
