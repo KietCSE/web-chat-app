@@ -25,11 +25,16 @@ function isOffline(user) {
     return !online.hasOwnProperty(user)
 }
 
+function socketIdOf(id) {
+    return online[id]
+}
+
 module.exports = { 
     online,
     MakeOfflineByUserID,
     MakeOfflineBySocketID, 
     MakeOnline, 
     isOffline,
-    isOnline
+    isOnline,
+    socketIdOf
  };

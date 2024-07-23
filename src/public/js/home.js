@@ -35,6 +35,7 @@ function UpdateOnlineUser() {
 }
 
 //CLICK ON PEOPLE TO CHAT ------
+
 function LoadConversation(mess) {
     let userID = sessionStorage.getItem('user')
     chatbox.textContent = ''
@@ -53,6 +54,7 @@ function LoadConversation(mess) {
     })
 } 
 
+var chating_user = ""; 
 
 document.querySelectorAll('.blockchat').forEach(e => {
     e.addEventListener('click', () => {
@@ -64,6 +66,7 @@ document.querySelectorAll('.blockchat').forEach(e => {
             element.classList.remove('active')
         })
         e.classList.add('active')
+        chating_user = e.id
 
         // fetch API to collect message from database 
         fetch(`${PORT}/chat/${e.id}`)
@@ -77,11 +80,8 @@ document.querySelectorAll('.blockchat').forEach(e => {
     })
 })
 
-
-
-
 //-----------------------------
-
+//SOCKER SEND MESSAGE 
 
 
 socket.on('connect', ()=>{
@@ -92,7 +92,8 @@ socket.on('connect', ()=>{
 // send mess 
 inputMess.addEventListener('keydown', event => {
     if (event.key === 'Enter') {
-        socket.emit("sendMess", event.target.value, )
+        socket.emit("sendMess", event.target.value, chating_user)
+        
         const newMessage = document.createElement('div')
         newMessage.classList.add('mess', 'my-message')
         const content = document.createElement('p')
@@ -100,6 +101,7 @@ inputMess.addEventListener('keydown', event => {
         newMessage.appendChild(content)
         chatbox.appendChild(newMessage)
         inputMess.value = ""
+    
         scrollDown()
     }
 })

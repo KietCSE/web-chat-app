@@ -4,6 +4,7 @@ const Conversation = require('../model/Conversation')
 
 class ConversationController {
 
+    //load conversation with someone 
     async LoadConversationById(req, res) {
         try {
             let ID = req.params.id

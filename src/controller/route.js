@@ -3,6 +3,8 @@ const homeController = require('./HomeController')
 const loginController = require('./LoginController')
 
 function Route(app) {
+    // view home and load user first view 
+
     // view login page
     app.get('/login',  (req, res) => loginController.LoginPage(req, res))
 
@@ -19,14 +21,12 @@ function Route(app) {
         await loginController.CreateNewUser(req, res)
     })
 
-    // view home and load user first view 
-    app.get('/',  async (req, res) => {
+    app.get('/user/:id',  async (req, res) => {
         try {
-            let listFriend = await homeController.LoadPoolConversation("123")
+            let listFriend = await homeController.LoadPoolConversation(req.params.id)
             homeController.HomePage(req, res, listFriend) 
         }
-        catch(err) {}
-        
+        catch(err) {} 
     })
 
     // Load friend conversation pool 

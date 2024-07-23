@@ -22,7 +22,8 @@ document.querySelector('.login').addEventListener('click', () => {
     .then(data => {
         if (data.status === true) {
             sessionStorage.setItem('user', pwd)
-            window.location.href = '${PORT}/'
+            window.location.href = `${PORT}/user/${pwd}`
+            console.log("login successfully")
         }
         else {
             /*  VALIDATION     
