@@ -5,6 +5,7 @@ const handlebars = require('express-handlebars')
 const http = require('http');
 const { Server }= require('socket.io');
 const onlineList = require('./util/Online')
+const socketServer = require('./socket')
 
 // connect database 
 const database = require('./config/database');
@@ -29,22 +30,10 @@ app.set('views', path.join(__dirname, '/views')); //set up folder for view
 //set up static folder (css, img, js)
 app.use(express.static(path.join(__dirname, 'public')));
 
+//handle socket 
+io.on("connection", (socket => socketServer.SocketHandle(io, socket)))
 
-// socket function 
-io.on("connection", (socket) => {
-    console.log(`Client connect: ${socket.id}`)
-
-    socket.on("sendMess", (mess, id) => {
-        io.to(onlineList.socketIdOf(id)).emit("reviecedMess", mess)
-    })
-
-    socket.on('disconnect', () => {
-        console.log(`Client disconnect: ${socket.id}`)
-        onlineList.MakeOfflineBySocketID(socket.id)
-        console.log("online", onlineList.online)
-    })
-});
-
+//handle route
 const route = require('./controller/route')
 route(app)
 

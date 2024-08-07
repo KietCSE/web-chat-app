@@ -1,3 +1,28 @@
+<div class="find-friend">
+    <div class="search-box">
+        <ion-icon name="search-outline"></ion-icon>
+        <input type="text" placeholder="search">
+        <button>SEARCH</button>
+    </div>
+
+    <div class="list-friend">
+        {{#each friend}}
+
+        <div class="friend-box" key="{{this.key}}">
+            <img src="#" alt="">
+            <span>{{this.name}}</span>
+            {{#if this.isFriend}}
+            <button>CONNECT</button>
+            {{else}}
+            <p>YOUR FRIEND</p>
+            {{/if}}
+        </div>
+
+        {{/each}}
+        
+    </div>
+</div>
+
 <div class="container">
         <div class="leftSide">
 
@@ -18,13 +43,14 @@
             <div class="search-chat">
                 <input type="text" placeholder="Search or start new chat">
                 <ion-icon name="search-outline"></ion-icon>
+                <button>NEW FRIEND</button>
             </div>
 
             <!-- chat list -->
             <div class="chat-list">
                 {{#each data}}
 
-                <div class="blockchat" id="{{this.id_conversation}}">
+                <div class="blockchat" key="{{this.id_user}}" id="{{this.id_conversation}}">
                     <div class="imgchat">
                         <img src="{{this.img}}" alt="" class="cover">
                     </div>
@@ -78,7 +104,9 @@
         
     </div>
 
-<script src="/js/home.js"></script>
+<script type="module" src="/js/home.js"></script>
+<script type="module" src="/js/ListMessage.js"></script>
+
 
 
 

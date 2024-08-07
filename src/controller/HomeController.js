@@ -5,10 +5,11 @@ const { multipleDataToObject } = require('../util/toObject');
 const { getMinuteAndHour } = require('../util/AnalyzeTime');
 
 class HomeController {
-    HomePage(req, res, data) {
-        res.render('home', {layout: 'main', data:data })
+    HomePage(req, res, data, friend) {
+        res.render('home', {layout: 'main', data:data, friend: friend })
     }
 
+    // load list conversation of specific user by ID
     async LoadPoolConversation(id) {
         try {
             const res = await poolConversation.findOne({ pool_conversation_id: id });
@@ -16,6 +17,16 @@ class HomeController {
             return multipleDataToObject(list)
         } catch (err) {
             return 
+        }
+    }
+
+    //load all user from database 
+    async LoadNewFriend() {
+        try {
+            const res = await User.find(); 
+            return multipleDataToObject(res)
+        } catch (err) {
+            return
         }
     }
     

@@ -5,7 +5,8 @@ const Schema = mongoose.Schema
 const Message = new Schema({
     from: {type: String}, 
     to: {type: String}, 
-    content: {type: String}, 
+    content: {type: String},
+    time: {type: String} 
 }, {
     timestamps : true
 })

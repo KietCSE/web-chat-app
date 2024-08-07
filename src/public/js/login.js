@@ -1,6 +1,5 @@
 const PORT = "http://localhost:3000"
 
-
 //LOGIN
 document.querySelector('.login').addEventListener('click', () => {
     const acc = document.getElementById("login-account").value;
@@ -21,9 +20,8 @@ document.querySelector('.login').addEventListener('click', () => {
     .then(res => res.json()) 
     .then(data => {
         if (data.status === true) {
-            sessionStorage.setItem('user', pwd)
-            window.location.href = `${PORT}/user/${pwd}`
-            console.log("login successfully")
+            sessionStorage.setItem('user', data.userID)
+            window.location.href = `${PORT}/user/${data.userID}`
         }
         else {
             /*  VALIDATION     
@@ -59,8 +57,8 @@ document.querySelector('.register').addEventListener('click', () => {
     .then(res => res.json()) 
     .then(data => {
         if (data.status === true) {
-            sessionStorage.setItem('user', pwd)
-            window.location.href = '${PORT}/'
+            sessionStorage.setItem('user', data.userID)
+            window.location.href = `${PORT}/user/${data.userID}`
         }
         else {
              /* VALIDATION     

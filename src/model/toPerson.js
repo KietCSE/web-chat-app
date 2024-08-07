@@ -8,7 +8,8 @@ const toPerson = new Schema({
     id_conversation: {type: String}, 
     number: {type: Number}, 
     recentMessage: {type:String}, 
-    recentTime: {type: String}
+    recentTime: {type: String},
+    id_user: {type: String}
 })
 
 module.exports = mongoose.model('toPerson', toPerson)
