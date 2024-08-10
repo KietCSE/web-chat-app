@@ -2,14 +2,14 @@ const ConversationController = require('./ConversationController')
 const homeController = require('./HomeController')
 const loginController = require('./LoginController')
 
-function Route(app) {
+function Route(app, io) {
     // view home and load user first view 
 
     // view login page
     app.get('/login',  (req, res) => loginController.LoginPage(req, res))
 
     // load online user 
-    app.post('/load-online', (req, res) => loginController.LoadOnlineUser(req, res))
+    app.post('/load-online', (req, res) => loginController.LoadOnlineUser(req, res, io))
     
     //check user account for login
     app.post('/checklogin', async (req, res) => {
@@ -27,27 +27,32 @@ function Route(app) {
             let listFriend = await homeController.LoadPoolConversation(req.params.id)
             let ListUser = await homeController.LoadNewFriend()
 
-            console.log(listFriend)
-
             let listId = [] 
             listFriend.forEach(e => {
                 listId.push(e.id_user)
             })
 
-            console.log(listId)
-            console.log(ListUser)
-
             let listnewFriend = [] 
             ListUser.forEach(element => {
-                if (listId.includes(element.pool_conversation_id)) {
-                    listnewFriend.push({ name : element.name, isFriend : false, key : element.pool_conversation_id})
-                }
-                else {
-                    listnewFriend.push({ name : element.name, isFriend : true, key : element.pool_conversation_id})
+                if (element.pool_conversation_id != req.params.id) {
+                    if (listId.includes(element.pool_conversation_id)) {
+                        listnewFriend.push({ 
+                            name : element.name, 
+                            isFriend : false, 
+                            key : element.pool_conversation_id,
+                            avatar: element.avatar
+                        })
+                    }
+                    else {
+                        listnewFriend.push({ 
+                            name : element.name, 
+                            isFriend : true, 
+                            key : element.pool_conversation_id,
+                            avatar: element.avatar,
+                        })
+                    }
                 }
             });
-
-            console.log(listnewFriend)
 
             homeController.HomePage(req, res, listFriend, listnewFriend) 
         }

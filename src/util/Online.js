@@ -8,11 +8,12 @@ function MakeOfflineByUserID(user) {
     delete online[user]
 }
 
+// clear online user and return that userid
 function MakeOfflineBySocketID(socketID) {
     for (let key in online) {
         if (online[key] === socketID) {
             MakeOfflineByUserID(key)
-            return
+            return key
         }
     }
 }
@@ -29,6 +30,10 @@ function socketIdOf(id) {
     return online[id]
 }
 
+function isEmpty() {
+    return Object.keys(online).length === 0
+}
+
 module.exports = { 
     online,
     MakeOfflineByUserID,
@@ -36,5 +41,6 @@ module.exports = {
     MakeOnline, 
     isOffline,
     isOnline,
-    socketIdOf
+    socketIdOf, 
+    isEmpty
  };

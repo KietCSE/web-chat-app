@@ -8,14 +8,13 @@ class ConversationController {
     async LoadConversationById(req, res) {
         try {
             let ID = req.params.id
-            console.log(ID)
             const list = await Conversation.findOne({ id_conversation: ID });
             let listMessage = multipleDataToObject(list.content)
             return res.json(listMessage)
         } catch (err) {
             // EXCEPTION HANDLER
             console.error(err);
-        }
+        }   
     }
     
 }

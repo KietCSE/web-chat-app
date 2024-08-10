@@ -16,7 +16,7 @@ const app = express()
 //create server 
 const httpServer = http.createServer(app)
 
-//create socket 
+// //create socket 
 const io = new Server(httpServer, { /* options */ });
 
 //middleware 
@@ -35,13 +35,12 @@ io.on("connection", (socket => socketServer.SocketHandle(io, socket)))
 
 //handle route
 const route = require('./controller/route')
-route(app)
+route(app, io)
 
 const port = 3000;
 
 //launch port 
 httpServer.listen(port, ()=>{ console.log("server was launched successfully")} )
 
-
-
+module.exports = { io }
 

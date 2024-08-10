@@ -1,13 +1,54 @@
-<input type="text" id="login-account" placeholder="account">
-<input type="text" id="login-pwd" placeholder="password">
-<button class="login">
-login
-</button>
+    <div class="container" id="container">
+        <div class="form-container sign-up">
+            <form>
+                <h1>Create Account</h1>
+                <div class="social-icons">
+                    <a href="#" class="icon"><i class="fa-brands fa-google-plus-g"></i></a>
+                    <a href="#" class="icon"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#" class="icon"><i class="fa-brands fa-github"></i></a>
+                    <a href="#" class="icon"><i class="fa-brands fa-linkedin-in"></i></a>
+                </div>
+                <span>or use your email for registeration</span>
+                <input type="text" placeholder="Name" class="register-name">
+                <input type="text" placeholder="Account" class="register-account">
+                <input type="password" placeholder="Password" class="register-pwd">
+                <input type="password" placeholder="Confirm password">
+                <div class="avatar">
+                    <input type="img" placeholder="Link avatar" class="register-img">
+                    <button>Up load</button>
+                </div>
+                <button class="register">Register</button>
+            </form>
+        </div>
 
-<input type="text" id="register-account"  placeholder="account">
-<input type="text" id="register-pwd" placeholder="password">
-<button class="register">
-register
-</button>
-
-<script type="module" src="js/login.js"></script>
+        <div class="form-container sign-in">
+            <form>
+                <h1>Sign In</h1>
+                <div class="social-icons">
+                    <a href="#" class="icon"><i class="fa-brands fa-google-plus-g"></i></a>
+                    <a href="#" class="icon"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#" class="icon"><i class="fa-brands fa-github"></i></a>
+                    <a href="#" class="icon"><i class="fa-brands fa-linkedin-in"></i></a>
+                </div>
+                <span>or use your email password</span>
+                <input type="text" placeholder="Account" class="login-account">
+                <input type="password" placeholder="Password" class="login-pwd">
+                <a href="#">Forget Your Password?</a>
+                <button class="login">Sign In</button>
+            </form>
+        </div>
+        <div class="toggle-container">
+            <div class="toggle">
+                <div class="toggle-panel toggle-left">
+                    <h1>Welcome Back!</h1>
+                    <p>Enter your personal details to use all of site features</p>
+                    <button class="hidden" id="login">Sign In</button>
+                </div>
+                <div class="toggle-panel toggle-right">
+                    <h1>Web Chat HCMUT</h1>
+                    <p>Register with your personal details to use all of site features</p>
+                    <button class="hidden" id="register">Register</button>
+                </div>
+            </div>
+        </div>
+    </div>

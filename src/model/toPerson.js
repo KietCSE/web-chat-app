@@ -4,7 +4,7 @@ const Schema = mongoose.Schema
 
 const toPerson = new Schema({
     name: {type: String}, 
-    img: {type: String}, 
+    avatar: {type: String}, 
     id_conversation: {type: String}, 
     number: {type: Number}, 
     recentMessage: {type:String}, 

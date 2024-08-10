@@ -1,15 +1,28 @@
 const PORT = "http://localhost:3000"
 
+const container = document.getElementById('container');
+const registerBtn = document.getElementById('register');
+const loginBtn = document.getElementById('login');
+
+registerBtn.addEventListener('click', () => {
+    container.classList.add("active");
+});
+
+loginBtn.addEventListener('click', () => {
+    container.classList.remove("active");
+});
+
+
 //LOGIN
 document.querySelector('.login').addEventListener('click', () => {
-    const acc = document.getElementById("login-account").value;
-    const pwd = document.getElementById("login-pwd").value;
+    const acc = document.querySelector(".login-account").value;
+    const pwd = document.querySelector(".login-pwd").value;
     
     let data = {
         account : acc, 
         password : pwd
     }
-    //check
+    //check user account 
     fetch(`${PORT}/checklogin`, {
         method : 'POST', 
         headers : {
@@ -20,7 +33,10 @@ document.querySelector('.login').addEventListener('click', () => {
     .then(res => res.json()) 
     .then(data => {
         if (data.status === true) {
+            // store cookie username and avatar 
             sessionStorage.setItem('user', data.userID)
+            sessionStorage.setItem('username', data.username)
+            sessionStorage.setItem('avatar', data.avatar)
             window.location.href = `${PORT}/user/${data.userID}`
         }
         else {
@@ -38,13 +54,19 @@ document.querySelector('.login').addEventListener('click', () => {
 
 //REGISTER 
 document.querySelector('.register').addEventListener('click', () => {
-    const acc = document.getElementById("register-account").value;
-    const pwd = document.getElementById("register-pwd").value;
-    
+    const acc = document.querySelector(".register-account").value;
+    const pwd = document.querySelector(".register-pwd").value;
+    const name = document.querySelector(".register-name").value;
+    const img = document.querySelector(".register-img").value;
+
     let data = {
         account : acc, 
-        password : pwd
+        password : pwd, 
+        username : name, 
+        avatar : img,
     }
+
+    console.log(data)
 
     // CREATE ACCOUNT FOR NEW USER 
     fetch(`${PORT}/create-new-user`, {
@@ -57,7 +79,10 @@ document.querySelector('.register').addEventListener('click', () => {
     .then(res => res.json()) 
     .then(data => {
         if (data.status === true) {
+            // store cookie username and avatar
             sessionStorage.setItem('user', data.userID)
+            sessionStorage.setItem('username', data.username)
+            sessionStorage.setItem('avatar', data.avatar)
             window.location.href = `${PORT}/user/${data.userID}`
         }
         else {
