@@ -59,11 +59,19 @@
                     <div class="details">
                         <div class="listHead">
                             <h4>{{this.name}}</h4>
+                            {{#if this.newfriend}}
+                            <h5 class="newfriend">New Friend</h5>
+                            {{/if}}
                             <p class="time">{{this.recentTime}}</p>
                         </div>
                         <div class="message">
+                           
+                            {{#if this.new}}
+                            <p style="font-weight:700">{{this.recentMessage}}</p>
+                            <b>{{this.new}}</b>
+                            {{else}}
                             <p>{{this.recentMessage}}</p>
-                            {{!-- <b></b> --}}
+                            {{/if}}
                         </div>
                     </div>
                 </div>

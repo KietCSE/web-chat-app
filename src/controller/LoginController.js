@@ -87,7 +87,7 @@ class LoginController {
             //save account 
             await newUser.save()
                         
-            //create new user-conversation 
+            //create new user-pool-conversation 
             let conversation = new userPoolConversation({
                 pool_conversation_id : userID,
                 pivot: 0, 
@@ -96,7 +96,7 @@ class LoginController {
             await conversation.save()
             
 
-            //response client 
+            //response client to load front end 
             res.status(200).json({
                 status : true, 
                 userID : userID,
@@ -105,6 +105,7 @@ class LoginController {
             })
         }
         catch (err) {
+            console.log(err)
             res.status(200).json({status : false, message: "khong the tao tai khoan"})
         }
     }

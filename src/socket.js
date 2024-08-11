@@ -5,6 +5,8 @@ const Message = require('./model/Message')
 const UserPoolConversation = require('./model/UserPoolConversation')
 const User = require('./model/User')
 const toPerson = require('./model/toPerson')
+const conversationController = require('./controller/ConversationController')
+
 
 //save message to database 
 async function SaveMessage(io, mess) {
@@ -54,7 +56,8 @@ async function SaveMessage(io, mess) {
                 number: 0, 
                 recentMessage: mess.content, 
                 recentTime: mess.time,
-                id_user: newFriend.pool_conversation_id
+                id_user: newFriend.pool_conversation_id,
+                new : 0
             }))
             await youraccount.save()
             console.log("already push new friend into pool conversation")
@@ -74,34 +77,73 @@ async function SaveMessage(io, mess) {
                 number: 0, 
                 recentMessage: mess.content, 
                 recentTime: mess.time,
-                id_user: you.pool_conversation_id
+                id_user: you.pool_conversation_id,
+                new : 1,
             }))
             await yourfriend.save()
             console.log("already push new friend into pool conversation")
         }
 
         //load frontend to new friend interface 
-        io.to(onlineList.socketIdOf(mess.to)).emit("sendNewFriend", you, mess)
+        if (onlineList.isOnline(mess.to)) {
+            io.to(onlineList.socketIdOf(mess.to)).emit("sendNewFriend", you, mess)
+        }
     }
-
 }
 
+// save status of new message when user offline 
+async function SaveStatusPoolConversation(mess) { 
+        let pool = await UserPoolConversation.findOne({pool_conversation_id : mess.to})
+        if (pool) {
+            let target = pool.people.find(e => e.id_user === mess.from) 
+            // console.log(target)
+            if (target) {
+                target.recentMessage = mess.content
+                target.recentTime = mess.time 
+                target.new = (target.new || 0) + 1 
+            }
+            await pool.save()
+            console.log("unread status mess saved!")
+        }
+}
 
 // socket function 
 function SocketHandle(io, socket) {
     console.log(`Client connect: ${socket.id}`)
 
     // send mess to client 
-    socket.on("sendMess", (mess) => {
-            
+    socket.on("sendMess", async (mess) => {
         console.log(mess)
-
+        //if user is online 
         if (onlineList.isOnline(mess.to)) {
+            conversationController.SaveMessage(io, mess) 
             //send message 
             io.to(onlineList.socketIdOf(mess.to)).emit("reviecedMess", mess)
         }
-        //save database
-        SaveMessage(socket, mess) 
+        else { 
+            // change status of pool conversation of offline user 
+            await conversationController.SaveStatusPoolConversation(mess)
+            conversationController.SaveMessage(io, mess) 
+        }
+        //save mess to database, if there are no conversation yet => create new one 
+        
+    })
+
+    //update when user offline 
+    socket.on('updatePoolConver', async (list, userID) => {
+        // console.log("new update", list)
+        // console.log(userID)
+        
+        try {
+            updatedDoc = await UserPoolConversation.findOneAndUpdate(
+                        {pool_conversation_id: userID}, 
+                        { $set : {people : list}}, 
+                        { new : true}, )
+            
+            console.log("update oke")
+        } catch (err) {
+            console.log(err)
+        }   
     })
 
 

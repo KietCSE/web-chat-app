@@ -5,13 +5,13 @@
 const PORT = "http://localhost:3000"
 
 const socket = io(PORT);
-const inputMess = document.querySelector('.chat-input input[type="text"]'); 
-const chatbox = document.querySelector('.chatbox')
-const listBlockChat = document.querySelectorAll('.blockchat')
+const inputMess = document.querySelector('.chat-input input[type="text"]');    //input chat 
+const chatbox = document.querySelector('.chatbox')   // screen chat
+const listBlockChat = document.querySelectorAll('.blockchat')         // list friend 
 
 var USER = sessionStorage.getItem('user')   // id of user 
-export var CHATING_USER_ID = ""
-var CHATING_CONVER_ID = ""
+var CHATING_USER_ID = ""      // id of user you are chating 
+var CHATING_CONVER_ID = ""      // id of convesation you are chating 
 
 //load user name and avatar 
 const USERNAME = sessionStorage.getItem('username')
@@ -46,37 +46,40 @@ function scrollDown() {
 scrollDown()
 
 //make user online 
-function UpdateOnlineUser() {
-    
-    var data = {
-        userID: USER, 
-        socketID : socket.id
-    };
+async function UpdateOnlineUser() {
+    try {
 
-    //load new online-user into server 
-    fetch(`${PORT}/load-online`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    })
-    .then(res => res.json())
-    .then(data => {
-        // update current user 
+        var data = {
+            userID: USER, 
+            socketID : socket.id
+        };
+
+        let response = await fetch(`${PORT}/load-online`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+
+        if (!response.ok) throw new Error('Network response was not ok ' + response.statusText)
+
+        let jsonResponse = await response.json()
         console.log('update online successfully')
-        if (data.status) {
-            let listOnlineFriend = data.data
+
+        // update online user 
+        if (jsonResponse.status) {
+            let listOnlineFriend = jsonResponse.data
             listBlockChat.forEach(element => {
-               if (element.getAttribute('key') in listOnlineFriend) {
+                if (element.getAttribute('key') in listOnlineFriend) {
                     element.querySelector('.online').style.visibility = 'visible'
-               }
+                }
             })
         }
-    })
-    .catch(err => {
+
+    } catch (err) {
         console.error('Error:', err);
-    }); 
+    }
 }
 
 
@@ -100,6 +103,7 @@ function LoadConversation(mess) {
 } 
 
 // active user are chating 
+// input e = blockchat 
 function ActiveUser(e) {
     //if already active user
     if (e.classList.contains('active')) return 
@@ -124,9 +128,10 @@ function ActiveUser(e) {
     //delete current chat 
     chatbox.textContent = ''
 
-    //delete notify
+    //delete notify: remove b and remove fontweight
     let nofity = e.querySelector('b')
     if (nofity) nofity.remove()
+    e.querySelector('.message p').style.removeProperty('font-weight');
 
     // fetch API to collect message from database 
     fetch(`${PORT}/chat/${e.id}`)
@@ -139,12 +144,93 @@ function ActiveUser(e) {
     })
 }
 
+// set active functio to all blockchat
 document.querySelectorAll('.blockchat').forEach(e => {
     e.addEventListener('click', () => ActiveUser(e))
 })
 
-//-----------------------------
-//SOCKER SEND MESSAGE 
+
+
+// CLICK MAKE NEW FRIEND 
+const newfriend = document.querySelector('.search-chat button')
+const listpeople = document.querySelector('.find-friend')
+
+//click on new friend button
+newfriend.addEventListener('click', () => {
+    listpeople.style.visibility = 'visible';
+
+    document.addEventListener('click', (event) => {
+        if (!listpeople.contains(event.target) && event.target !== newfriend) {
+            listpeople.style.visibility = 'hidden';
+        }
+    });
+ 
+});
+
+//ADD NEW BOX CHAT OF NEW FRIEND 
+document.querySelectorAll('.list-friend button').forEach(e => {
+    e.addEventListener('click', (event) => {
+        //close friend list 
+        listpeople.style.visibility = 'hidden';
+
+        // name of new friend 
+        let NameOfNewFriend =  e.parentElement.querySelector('span').textContent 
+        // key of newfriend 
+        let NewKeyFriend = e.parentElement.getAttribute('key')
+        //avatar of new friend
+        let NewAvatar = e.parentElement.querySelector('img').src
+
+        //create new box chat for new friend 
+        let newDiv = document.createElement('div')
+        newDiv.classList.add('blockchat');
+        newDiv.setAttribute('key', NewKeyFriend);  
+        newDiv.setAttribute('id', USER + NewKeyFriend);
+
+        newDiv.innerHTML = `
+                <div class="imgchat">
+                    <img src="${NewAvatar}" alt="" class="cover">
+                    <div class="online"></div>
+                </div>
+                
+                <div class="details">
+                    <div class="listHead">
+                        <h4>${NameOfNewFriend}</h4>
+                        <h5 class="newfriend">New Friend</h5>
+                        <p class="time"></p>
+                    </div>
+                    <div class="message">
+                        <p></p>
+                    </div>
+                </div>`
+
+        //add active event listener
+        newDiv.addEventListener('click', () => ActiveUser(newDiv))
+
+        // insert friend box to front end 
+        let list = document.querySelector('.chat-list')
+        list.insertBefore(newDiv, list.firstChild)
+        
+        //auto active new friend chat box 
+        document.querySelectorAll('.blockchat').forEach(element => {
+            element.classList.remove('active')
+        })
+        newDiv.classList.add('active')
+
+        //auto change chating user
+        document.getElementById('chating-avatar').src = NewAvatar
+
+        //update chating-user
+        CHATING_USER_ID = NewKeyFriend
+        CHATING_CONVER_ID = USER + NewKeyFriend  // new chat conversation id 
+
+        // clear content
+        chatbox.textContent = ''
+
+    })
+}) 
+
+
+//SOCKER SEND MESSAGE -----------------------------------------------------------
 
 socket.on('connect', ()=>{
     console.log("Connect successfully", socket.id)
@@ -216,6 +302,8 @@ socket.on("reviecedMess", (mess) => {
                 newNotify.textContent = 1
                 sendPeople.querySelector('.message').appendChild(newNotify)
             }
+            sendPeople.querySelector('.message p').textContent = mess.content
+            sendPeople.querySelector('.message p').style.fontWeight  = 700
         }
         return 
     }
@@ -241,16 +329,17 @@ socket.on("sendNewFriend", (newFriend, newMessage) => {
 
     newDiv.innerHTML = `
             <div class="imgchat">
-                <img src="#" alt="" class="cover">
+                <img src="${newFriend.avatar}" alt="" class="cover">
             </div>
             
             <div class="details">
                 <div class="listHead">
                     <h4>${newFriend.name}</h4>
-                    <p class="time">${newMessage.time}</p>
+                    <h5 class="newfriend">New Friend</h5>
+                    <p class="time" >${newMessage.time}</p>
                 </div>
                 <div class="message">
-                    <p>${newMessage.content}</p>
+                    <p style="font-weight:700">${newMessage.content}</p>
                     <b>1</b>
                 </div>
             </div>`
@@ -261,7 +350,6 @@ socket.on("sendNewFriend", (newFriend, newMessage) => {
     // insert in front of list 
     let chatList = document.querySelector('.chat-list');
     chatList.insertBefore(newDiv, chatList.firstChild);
-    console.log("okeokeoke")
 })
 
 // green tick for new online user 
@@ -274,6 +362,7 @@ socket.on("receiveOnline", (id) => {
     }
 })
 
+// delete green tick for offline user 
 socket.on("receiveOffline", (id) => {
     console.log("new offline", id)
     let onlineUser = Array.from(document.querySelectorAll('.blockchat'))
@@ -284,80 +373,29 @@ socket.on("receiveOffline", (id) => {
 })
 
 
-// CLICK MAKE NEW FRIEND 
-const newfriend = document.querySelector('.search-chat button')
-const listpeople = document.querySelector('.find-friend')
-
-//click on new friend button
-newfriend.addEventListener('click', () => {
-    listpeople.style.visibility = 'visible';
-
-    document.addEventListener('click', (event) => {
-        if (!listpeople.contains(event.target) && event.target !== newfriend) {
-            listpeople.style.visibility = 'hidden';
-        }
-    });
- 
+// update pool conversation when close web
+window.addEventListener('beforeunload', function (event) {
+    let update = []
+    document.querySelectorAll('.blockchat').forEach(e => {
+        if (e.querySelector('.message p').textContent) {
+            update.push({
+                name                : e.querySelector('h4').textContent, 
+                avatar              : e.querySelector('img').src, 
+                id_conversation     : e.getAttribute('id'), 
+                number              : 0, 
+                recentMessage       : e.querySelector('.message p').textContent, 
+                recentTime          : e.querySelector('.time').textContent,
+                id_user             : e.getAttribute('key'),
+                new                 : e.querySelector('.message b') ? e.querySelector('.message b').textContent : 0, 
+                newfriend           : false  // auto already your friend 
+            })
+        }        
+    })
+    console.log("list", update)
+    socket.emit('updatePoolConver', update, USER)
 });
 
+// END SOCKET -----------------------------------------------------------------
 
-//ADD NEW BOX CHAT OF NEW FRIEND 
-document.querySelectorAll('.list-friend button').forEach(e => {
-    e.addEventListener('click', (event) => {
-        //close friend list 
-        listpeople.style.visibility = 'hidden';
-
-        // name of new friend 
-        let NameOfNewFriend =  e.parentElement.querySelector('span').textContent 
-        // key of newfriend 
-        let NewKeyFriend = e.parentElement.getAttribute('key')
-        //avatar of new friend
-        let NewAvatar = e.parentElement.querySelector('img').src
-
-        //create new box chat for new friend 
-        let newDiv = document.createElement('div')
-        newDiv.classList.add('blockchat');
-        newDiv.setAttribute('key', NewKeyFriend);  
-        newDiv.setAttribute('id', USER + NewKeyFriend);
-
-        newDiv.innerHTML = `
-                <div class="imgchat">
-                    <img src="${NewAvatar}" alt="" class="cover">
-                    <div class="online"></div>
-                </div>
-                
-                <div class="details">
-                    <div class="listHead">
-                        <h4>${NameOfNewFriend}</h4>
-                        <p class="time"></p>
-                    </div>
-                    <div class="message">
-                        <p></p>
-                    </div>
-                </div>`
-
-        //add active event listener
-        newDiv.addEventListener('click', () => ActiveUser(newDiv))
-
-        document.querySelector('.chat-list').appendChild(newDiv)
-        
-        //auto active new friend chat box 
-        document.querySelectorAll('.blockchat').forEach(element => {
-            element.classList.remove('active')
-        })
-        newDiv.classList.add('active')
-
-        //auto change chating user
-        document.getElementById('chating-avatar').src = NewAvatar
-
-        //update chating-user
-        CHATING_USER_ID = NewKeyFriend
-        CHATING_CONVER_ID = USER + NewKeyFriend  // new chat conversation id 
-
-        // clear content
-        chatbox.textContent = ''
-
-    })
-}) 
 
 

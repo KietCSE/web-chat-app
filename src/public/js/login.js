@@ -88,6 +88,7 @@ document.querySelector('.register').addEventListener('click', () => {
         else {
              /* VALIDATION     
             AUTHENTICATION */
+            console.log(data.message)
             console.log('WRONG USER OR PASSWORD')
         }
     }) 

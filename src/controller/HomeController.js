@@ -2,7 +2,7 @@ const { response } = require('express')
 const poolConversation = require('../model/UserPoolConversation');
 const User = require('../model/User')
 const { multipleDataToObject } = require('../util/toObject');
-const { getMinuteAndHour } = require('../util/AnalyzeTime');
+// const { getMinuteAndHour } = require('../util/BufferMessage');
 
 class HomeController {
     HomePage(req, res, data, friend) {
@@ -13,7 +13,9 @@ class HomeController {
     async LoadPoolConversation(id) {
         try {
             const res = await poolConversation.findOne({ pool_conversation_id: id });
+            // console.log(res)
             let list = res.people 
+            // console.log("list:", list)
             return multipleDataToObject(list)
         } catch (err) {
             return 

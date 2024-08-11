@@ -449,3 +449,13 @@ body {
     right: 0;
     visibility: hidden;
 }
+
+/* notify new friend */
+.newfriend {
+    background-color: red;
+    display: flex;
+    align-items: center;
+    padding: 0px 5px;
+    border-radius: 5px;
+    font-weight: 600;
+}

@@ -9,7 +9,9 @@ const toPerson = new Schema({
     number: {type: Number}, 
     recentMessage: {type:String}, 
     recentTime: {type: String},
-    id_user: {type: String}
+    id_user: {type: String},
+    new : {type: Number},
+    newfriend : {type: Boolean}
 })
 
 module.exports = mongoose.model('toPerson', toPerson)
