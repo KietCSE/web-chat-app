@@ -24,14 +24,16 @@ function Route(app, io) {
     // home page for each user 
     app.get('/user/:id',  async (req, res) => {
         try {
+            // load list of friend 
             let listFriend = await homeController.LoadPoolConversation(req.params.id)
+            // load all user from database 
             let ListUser = await homeController.LoadNewFriend()
 
             let listId = [] 
             listFriend.forEach(e => {
                 listId.push(e.id_user)
             })
-
+                
             let listnewFriend = [] 
             ListUser.forEach(element => {
                 if (element.pool_conversation_id != req.params.id) {
