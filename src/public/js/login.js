@@ -14,7 +14,8 @@ loginBtn.addEventListener('click', () => {
 
 
 //LOGIN
-document.querySelector('.login').addEventListener('click', () => {
+document.querySelector('.login').addEventListener('click', (event) => {
+    event.preventDefault();
     const acc = document.querySelector(".login-account").value;
     const pwd = document.querySelector(".login-pwd").value;
     
@@ -43,6 +44,7 @@ document.querySelector('.login').addEventListener('click', () => {
             /*  VALIDATION     
             AUTHENTICATION */
             console.log('WRONG USER OR PASSWORD')
+            console.log(data.message)
         }
     }) 
     .catch(erro => { 
@@ -53,7 +55,8 @@ document.querySelector('.login').addEventListener('click', () => {
 
 
 //REGISTER 
-document.querySelector('.register').addEventListener('click', () => {
+document.querySelector('.register').addEventListener('click', (event) => {
+    event.preventDefault();
     const acc = document.querySelector(".register-account").value;
     const pwd = document.querySelector(".register-pwd").value;
     const name = document.querySelector(".register-name").value;
@@ -78,7 +81,9 @@ document.querySelector('.register').addEventListener('click', () => {
     })
     .then(res => res.json()) 
     .then(data => {
+        console.log(data)
         if (data.status === true) {
+           
             // store cookie username and avatar
             sessionStorage.setItem('user', data.userID)
             sessionStorage.setItem('username', data.username)
@@ -92,7 +97,7 @@ document.querySelector('.register').addEventListener('click', () => {
             console.log('WRONG USER OR PASSWORD')
         }
     }) 
-    .catch(erro => { 
+    .catch(error => { 
         /*JS EXCEPTION HANDLER*/
         console.log(error)
     })

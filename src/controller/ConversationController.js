@@ -10,6 +10,12 @@ const toPerson = require('../model/toPerson')
 
 class ConversationController {
 
+    // [0..9] slice 0 
+    // [10..19] slice 1 
+    // [10..19] slice 1 
+    // ...
+    MSG_PER_SLICE = 10
+
     //load conversation with someone 
     async LoadConversationById(req, res) {
         try {
@@ -21,6 +27,25 @@ class ConversationController {
             // EXCEPTION HANDLER
             console.error(err);
         }   
+    }
+
+    async LoadSlideConversationById(req, res) {
+        try {
+            let {id, slice} = req.params
+            slice = parseInt(slice, 10)
+            const list = await Conversation.findOne({ id_conversation: id });
+            const length = list.content.length
+            // console.log("length: ", length)
+            // console.log(typeof slice)
+            // console.log(length - (slice+1)*this.MSG_PER_SLICE)
+            // console.log(length - slice*this.MSG_PER_SLICE)
+
+            let listMessage = multipleDataToObject(list.content.slice(length - (slice+1)*this.MSG_PER_SLICE, length - slice*this.MSG_PER_SLICE))
+            return res.json(listMessage)
+        } catch (err) {
+            // EXCEPTION HANDLER
+            console.error(err);
+        } 
     }
 
     //save message, find conversation, if there is no conver yet =? create one and update poll conver 

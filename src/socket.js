@@ -129,18 +129,15 @@ function SocketHandle(io, socket) {
         
     })
 
-    //update when user offline 
+    //update pool conversation when user offline 
     socket.on('updatePoolConver', async (list, userID) => {
-        // console.log("new update", list)
-        // console.log(userID)
-        
         try {
             updatedDoc = await UserPoolConversation.findOneAndUpdate(
                         {pool_conversation_id: userID}, 
                         { $set : {people : list}}, 
                         { new : true}, )
             
-            console.log("update oke")
+            console.log("updated pool conversation of user!")
         } catch (err) {
             console.log(err)
         }   

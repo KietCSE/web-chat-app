@@ -34,19 +34,23 @@ class LoginController {
     //check valid account user 
     async CheckLoginUser(req, res) { 
         try {
-            let acc = req.body.account 
-            let pwd = req.body.password 
-            
+            const { account: acc, password: pwd } = req.body;
+
             // find user account in database 
-            let user = await User.findOne({account : acc, password : pwd})
+            let user = await User.findOne({account : acc})
             if (user) {
-                // encode password to get user id 
-                const userID = await encoder.encode(pwd, LENGTHCODE)
+                // let checkPassword = await encoder.verifyPassword(pwd, user.password)
+                let checkPassword = pwd == user.account
+
+                if (!checkPassword) 
+                    res.status(200).json({status: false, message: "wrong password"})
+
+                const userID = user.pool_conversation_id
                 // response client 
                 res.status(200).json({status : true, userID: userID, username : user.name, avatar : user.avatar})
             }
             else {
-                res.status(500).json({status: false})
+                res.status(500).json({status: false, message: "wrong account"})
             }
         }
         catch (error) {
@@ -58,7 +62,7 @@ class LoginController {
     //create new account 
     async CreateNewUser(req, res) { 
         try {
-            // validate 
+            // validate whether account have existed
             let acc = req.body.account 
             let pwd = req.body.password 
 
@@ -66,14 +70,18 @@ class LoginController {
                 res.status(500).json({status: false, message : "Tai khoan hoac mat khau khong hop le"})
                 return 
             } 
-            let user = await User.findOne({account : acc, password : pwd})
+            let user = await User.findOne({account : acc})
             if (user) {
                 res.status(500).json({status: false, message : "Tai khoan hoac mat khau khong hop le"})
                 return 
             }
 
             //create user ID = conversation pool ID
-            const userID = await encoder.encode(pwd, LENGTHCODE)  //userID - conversationID
+            const userID = encoder.encodeID(pwd, LENGTHCODE)  //userID = conversationID
+
+            //hash password 
+            // const newpwd = await encoder.hashPassword(pwd)
+            // console.log(newpwd)
 
             //create new account 
             let newUser = new User({

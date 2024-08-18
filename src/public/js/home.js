@@ -1,5 +1,3 @@
-// import { online } from '../../util/Online.js';
-// import * as ListMessage from './ListMessage.js'
 
 //create socket
 const PORT = "http://localhost:3000"
@@ -10,8 +8,16 @@ const chatbox = document.querySelector('.chatbox')   // screen chat
 const listBlockChat = document.querySelectorAll('.blockchat')         // list friend 
 
 var USER = sessionStorage.getItem('user')   // id of user 
-var CHATING_USER_ID = ""      // id of user you are chating 
-var CHATING_CONVER_ID = ""      // id of convesation you are chating 
+var CHATING_USER_ID       // id of user you are chating 
+var CHATING_CONVER_ID   // id of convesation you are chating 
+var MGS_SLICE = 0
+
+// set number order for all friend 
+var PIVOT = 1   // pivot for order list friend 
+listBlockChat.forEach((element) => {
+    element.setAttribute('number', 0)
+})
+
 
 //load user name and avatar 
 const USERNAME = sessionStorage.getItem('username')
@@ -85,8 +91,9 @@ async function UpdateOnlineUser() {
 
 //CLICK ON PEOPLE TO CHAT ------
 
+// load conversation content for slice = 0 
 function LoadConversation(mess) {
-    chatbox.textContent = ''
+    // chatbox.textContent = ''
     mess.forEach(e => {
         let newMessage = document.createElement('div')
         if (e.from === USER) 
@@ -99,8 +106,50 @@ function LoadConversation(mess) {
         newMessage.appendChild(chatContent)
         chatbox.appendChild(newMessage)
     })  
-    scrollDown()
+    // scrollDown()
 } 
+
+// load conversation content for slice > 0
+function LoadHeadConversation(mess) {
+
+    for (let i = mess.length-1; i >= 0; i--) {
+        let newMessage = document.createElement('div')
+        if (mess[i].from === USER) 
+            newMessage.classList.add('mess', 'my-message')
+        else 
+            newMessage.classList.add('mess', 'frnd-message')
+
+        let chatContent = document.createElement('p')
+        chatContent.innerHTML = `${mess[i].content} <br><span>${mess[i].time}</span>`
+        newMessage.appendChild(chatContent)
+        chatbox.insertBefore(newMessage, chatbox.firstChild)
+    }
+} 
+
+
+
+// load additional coversation content when scoll
+chatbox.addEventListener('scroll', async () => {
+    if (chatbox.scrollTop === 0) {
+        try {
+            // check if there are no slice left 
+            if (MGS_SLICE === undefined) return 
+            // fetch content 
+            let response = await fetch(`${PORT}/chat/${CHATING_CONVER_ID}/${++MGS_SLICE}`)
+            if (!response.ok) throw Error("Error when load conversation data")
+            let jsonResponse = await response.json()
+            // if there are no content 
+            if (jsonResponse.length === 0) {
+                MGS_SLICE = undefined
+                return 
+            }
+            LoadHeadConversation(jsonResponse)
+        } catch(err) {
+            console.log(err)
+        }
+    }
+})
+
 
 // active user are chating 
 // input e = blockchat 
@@ -124,6 +173,7 @@ function ActiveUser(e) {
     //update chating-user
     CHATING_USER_ID = e.getAttribute('key')
     CHATING_CONVER_ID = e.id
+    MGS_SLICE = 0
 
     //delete current chat 
     chatbox.textContent = ''
@@ -134,17 +184,18 @@ function ActiveUser(e) {
     e.querySelector('.message p').style.removeProperty('font-weight');
 
     // fetch API to collect message from database 
-    fetch(`${PORT}/chat/${e.id}`)
+    fetch(`${PORT}/chat/${e.id}/0`)
     .then(respone => respone.json())
     .then(res => {
         LoadConversation(res)
+        scrollDown()
     })
     .catch(err => {
         //  ERROR
     })
 }
 
-// set active functio to all blockchat
+// set active function to all blockchat
 document.querySelectorAll('.blockchat').forEach(e => {
     e.addEventListener('click', () => ActiveUser(e))
 })
@@ -170,6 +221,10 @@ newfriend.addEventListener('click', () => {
 //ADD NEW BOX CHAT OF NEW FRIEND 
 document.querySelectorAll('.list-friend button').forEach(e => {
     e.addEventListener('click', (event) => {
+
+        //close if new friend already active 
+        if (CHATING_USER_ID === e.parentElement.getAttribute('key')) return 
+
         //close friend list 
         listpeople.style.visibility = 'hidden';
 
@@ -240,13 +295,15 @@ socket.on('connect', ()=>{
 // send mess to friends 
 inputMess.addEventListener('keydown', event => {
     if (event.key === 'Enter') {
-        let mess = createMessage(event.target.value)
+        // if doesn't have target user to chat 
+        if (!CHATING_USER_ID) return 
 
+        let mess = createMessage(event.target.value)
         socket.emit("sendMess", mess)
         
         let currentTime = getTime()
 
-        // load message into box chat 
+        // load new message into box chat 
         let newMessage = document.createElement('div')
         newMessage.classList.add('mess', 'my-message')
         let content = document.createElement('p')
@@ -255,11 +312,11 @@ inputMess.addEventListener('keydown', event => {
         chatbox.appendChild(newMessage)
         inputMess.value = ""
         
-
-        //load message into list chat 
+        //load message into list friend 
         let list = document.querySelectorAll('.blockchat')
   
-        let activeUser 
+        let activeUser
+        // find target user  
         for (let e of list) {
             if (e.classList.contains('active')) {
                 activeUser = e
@@ -269,6 +326,12 @@ inputMess.addEventListener('keydown', event => {
         if (activeUser) {
             activeUser.querySelector('.time').innerText = currentTime
             activeUser.querySelector('.message p').innerText = mess.content
+
+            // set attribute number to order list friend 
+            if (activeUser.hasAttribute('number')) {
+                activeUser.setAttribute('number', ++PIVOT)
+            }
+            else activeUser.setAttribute('number', 1)
         }
 
         scrollDown()
@@ -282,6 +345,7 @@ socket.on("reviecedMess", (mess) => {
     if (CHATING_USER_ID != mess.from)  {
         // load red nofity 
         let listpeople = document.querySelectorAll('.chat-list .blockchat')
+        // find who send this message 
         let sendPeople 
         for (let e of listpeople) {
             if (e.getAttribute('key') == mess.from) {
@@ -290,7 +354,9 @@ socket.on("reviecedMess", (mess) => {
             }
         }
         console.log(sendPeople)
+       
         if (sendPeople) {
+             // load notify to user who send message
             let notify = sendPeople.querySelector('b')
             if (notify) {
                 let number = parseInt(notify.textContent, 10)
@@ -304,6 +370,11 @@ socket.on("reviecedMess", (mess) => {
             }
             sendPeople.querySelector('.message p').textContent = mess.content
             sendPeople.querySelector('.message p').style.fontWeight  = 700
+
+            // bring this user to the head of list friend 
+            let listFriend = document.querySelector('.chat-list')
+            listFriend.insertBefore(sendPeople, listFriend.firstChild)
+            sendPeople.setAttribute('number', ++PIVOT)   
         }
         return 
     }
@@ -382,7 +453,7 @@ window.addEventListener('beforeunload', function (event) {
                 name                : e.querySelector('h4').textContent, 
                 avatar              : e.querySelector('img').src, 
                 id_conversation     : e.getAttribute('id'), 
-                number              : 0, 
+                number              : e.hasAttribute('number') ? e.getAttribute('number') : 0, 
                 recentMessage       : e.querySelector('.message p').textContent, 
                 recentTime          : e.querySelector('.time').textContent,
                 id_user             : e.getAttribute('key'),

@@ -13,9 +13,8 @@ class HomeController {
     async LoadPoolConversation(id) {
         try {
             const res = await poolConversation.findOne({ pool_conversation_id: id });
-            // console.log(res)
-            let list = res.people 
-            // console.log("list:", list)
+            // sort for the most recent chating user 
+            let list = res.people.sort((a,b) => b.number - a.number)
             return multipleDataToObject(list)
         } catch (err) {
             return 
@@ -30,6 +29,39 @@ class HomeController {
         } catch (err) {
             return
         }
+    }
+
+
+    /*  load all data from database to render home page: 
+        data include : list friend and list new friend 
+        Load all user in database, mark who is friend, who is not 
+    */
+    async GetDataForHomePage(curerntUserId) {
+        // load list of friend 
+        let listFriend = await this.LoadPoolConversation(curerntUserId)
+
+        // load all user from database 
+        let ListUser = await this.LoadNewFriend()
+
+        let listFriendID = [] 
+        listFriend.forEach(e => {
+            listFriendID.push(e.id_user)
+        })
+        
+        // create list new friend 
+        let listnewFriend = [] 
+        ListUser.forEach(element => {
+            if (element.pool_conversation_id === curerntUserId) return 
+            const idFriend = !listFriendID.includes(element.pool_conversation_id)
+            listnewFriend.push({ 
+                name : element.name, 
+                isFriend : idFriend, 
+                key : element.pool_conversation_id,
+                avatar: element.avatar
+            })
+        });
+
+        return {listFriend, listnewFriend}
     }
     
 }
