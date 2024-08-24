@@ -1,5 +1,4 @@
 const express = require('express')
-const morgan = require('morgan')
 const path = require('path')
 const handlebars = require('express-handlebars')
 const http = require('http');
@@ -9,7 +8,7 @@ const socketServer = require('./socket')
 const session = require('express-session')
 const route = require('./controller/route')
 const database = require('./config/database');
-
+require('dotenv').config();
 
 // connect database 
 database.connect()
@@ -38,10 +37,10 @@ app.use(express.json())   // xu ly du lieu trung gian
 //handle route
 route(app, io)
 
-const port = 3000;
+const port = process.env.NODE_LOCAL_PORT || 3000;
 
 //launch port 
-httpServer.listen(port, ()=>{ console.log("server was launched successfully")} )
+httpServer.listen(port, ()=>{ console.log("server was launched successfully at",port)} )
 
 module.exports = { io }
 

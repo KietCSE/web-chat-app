@@ -1,0 +1,26 @@
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    env_file: ./.env
+    ports:
+      - "${MONGODB_LOCAL_PORT}:${MONGODB_DOCKER_PORT}"
+    volumes:
+      - web-chat-mongo-data:/data/db
+
+  nodeapp:
+    build: .
+    container_name: nodeapp
+    env_file: ./.env
+    ports:
+      - "${NODE_LOCAL_PORT}:${NODE_DOCKER_PORT}"
+    depends_on:
+      - mongo
+    environment:
+      - MONGO_URI=mongodb://mongo:${MONGODB_DOCKER_PORT}/mydatabase
+    volumes: 
+      - ./:/app
+      - /app/node_modules
+
+volumes:
+  web-chat-mongo-data:
