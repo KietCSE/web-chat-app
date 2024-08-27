@@ -2,7 +2,8 @@ const { response } = require('express')
 const poolConversation = require('../model/UserPoolConversation');
 const User = require('../model/User')
 const { multipleDataToObject } = require('../util/toObject');
-// const { getMinuteAndHour } = require('../util/BufferMessage');
+const { getStorage, ref, uploadBytes, getDownloadURL, uploadBytesResumable } = require('firebase/storage');
+const {storage} = require('../config/Firebase')
 
 class HomeController {
     HomePage(req, res, data, friend) {
@@ -64,6 +65,37 @@ class HomeController {
         return {listFriend, listnewFriend}
     }
     
+    /*
+        upload file into firebase and return a url of this file 
+    */ 
+    async UpLoadFileToFirebase(file) {
+        try {
+            
+            if (!file) return null
+            const filename = new Date().getTime() + '-' + file.originalname;
+            // if this file is an image 
+            if (file.mimetype.startsWith('image')) {
+                const metadata = {
+                    contentType: file.mimetype
+                }
+                const imageRef = ref(storage, 'images/' + filename);
+
+                return uploadBytesResumable(imageRef, file.buffer, metadata)
+                            .then(snapshot => getDownloadURL(snapshot.ref))
+                            .then(url => url)
+            }
+            // if this file is other type
+            else {
+                const imageRef = ref(storage, 'files/' + filename);
+
+                return uploadBytes(imageRef, file.buffer)
+                            .then(snapshot => getDownloadURL(snapshot.ref))
+                            .then(url => url )               
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
 }
 
 module.exports = new HomeController

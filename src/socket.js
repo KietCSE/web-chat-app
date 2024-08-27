@@ -122,7 +122,7 @@ function SocketHandle(io, socket) {
         }
         else { 
             // change status of pool conversation of offline user 
-            await conversationController.SaveStatusPoolConversation(mess)
+            conversationController.SaveStatusPoolConversation(mess)
             conversationController.SaveMessage(io, mess) 
         }
         //save mess to database, if there are no conversation yet => create new one 
@@ -153,7 +153,7 @@ function SocketHandle(io, socket) {
             io.to(onlineList.online[key]).emit("receiveOffline", userid)
         }
 
-        console.log("online", onlineList.online)
+        console.log("online = ", onlineList.online)
     })
 }
 

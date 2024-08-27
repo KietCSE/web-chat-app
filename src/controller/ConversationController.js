@@ -58,7 +58,9 @@ class ConversationController {
                 from: mess.from,
                 to: mess.to, 
                 content: mess.content, 
-                time: mess.time
+                time: mess.time,
+                image: mess.image, 
+                file: mess.file
             }))
             conversation.save().then(res => console.log("saved message!!"))
         }
@@ -73,7 +75,9 @@ class ConversationController {
                         from: mess.from,
                         to: mess.to, 
                         content: mess.content, 
-                        time: mess.time
+                        time: mess.time,
+                        image: mess.image, 
+                        file: mess.file
                     }
                 ]
             })
@@ -83,7 +87,6 @@ class ConversationController {
     
             //get information of new friend 
             let newFriend = await User.findOne({pool_conversation_id : mess.to})
-            // console.log(newFriend)
     
             //save new friend into your pool conversation 
             let youraccount = await UserPoolConversation.findOne({pool_conversation_id : mess.from})
@@ -105,8 +108,7 @@ class ConversationController {
     
             //get your information 
             let you = await User.findOne({pool_conversation_id : mess.from})
-            // console.log(you)
-    
+            
             //save you into your friend's pool conversation 
             let yourfriend = await UserPoolConversation.findOne({pool_conversation_id : mess.to})
             if (yourfriend) {
@@ -132,7 +134,7 @@ class ConversationController {
         }
     }
     
-    // save status of new message when user offline 
+    // save status of new message when received user offline 
     async SaveStatusPoolConversation(mess) { 
         let pool = await UserPoolConversation.findOne({pool_conversation_id : mess.to})
         if (pool) {

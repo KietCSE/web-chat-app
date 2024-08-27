@@ -6,7 +6,9 @@ const Message = new Schema({
     from: {type: String}, 
     to: {type: String}, 
     content: {type: String},
-    time: {type: String} 
+    time: {type: String}, 
+    image: {type: String},
+    file: {type: String},
 }, {
     timestamps : true
 })

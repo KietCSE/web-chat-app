@@ -102,7 +102,9 @@
             <div class="chat-input">
                 <ion-icon name="happy-outline"></ion-icon>
                 <ion-icon name="attach-outline"></ion-icon>
-                <input type="text" placeholder="type a message">
+                {{!-- <input type="text" placeholder="type a message"> --}}
+                <div class="mainInput" contenteditable="true" placeholder="Nhập tin nhắn hoặc dán hình ảnh..." ></div>
+                
                 <ion-icon name="send-outline"></ion-icon>
 
             </div>
@@ -112,7 +114,7 @@
     </div>
 
 <script type="module" src="/js/home.js"></script>
-<script type="module" src="/js/ListMessage.js"></script>
+<script type="module" src="/js/socketClient.js"></script>
 
 
 
