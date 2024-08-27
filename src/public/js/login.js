@@ -2,14 +2,17 @@ const PORT = "http://localhost:3000"
 
 const container = document.getElementById('container');
 const registerBtn = document.getElementById('register');
+const signin = document.getElementById('signin')
 const loginBtn = document.getElementById('login');
 
 registerBtn.addEventListener('click', () => {
-    container.classList.add("active");
+    const signup = document.querySelector('.sign-in');
+    signup.style.zIndex = 0; // Sửa từ z-index thành zIndex
 });
 
-loginBtn.addEventListener('click', () => {
-    container.classList.remove("active");
+signin.addEventListener('click', () => {
+    const signup = document.querySelector('.sign-in');
+    signup.style.zIndex = 2; // Sửa từ z-index thành zIndex
 });
 
 

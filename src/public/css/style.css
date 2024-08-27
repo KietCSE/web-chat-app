@@ -2,7 +2,7 @@
 
 :root {
     --friend-mess: #fff; 
-    --you-mess: #3d42d5; 
+    --you-mess: #383de2; 
     --background-chat-box: #faebd7; 
     --background-color: linear-gradient(to right, #e2e2e2, #c9d6ff);
     --block-chat-active: #A4A3AA; 
@@ -321,6 +321,10 @@ body{
 
 .my-message {
     justify-content: flex-end;
+}
+
+.my-message a {
+    color: #fff;
 }
 
 .frnd-message {
