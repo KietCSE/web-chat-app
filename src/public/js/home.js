@@ -2,22 +2,24 @@
 //create socket
 const PORT = "http://localhost:3000"
 
-const socket = io(PORT);
-const inputMess = document.querySelector('.chat-input input[type="text"]');    //input chat 
+export const socket = io(PORT);
+const inputMess = document.querySelector('.chat-input .mainInput');    //input chat 
 const chatbox = document.querySelector('.chatbox')   // screen chat
 const listBlockChat = document.querySelectorAll('.blockchat')         // list friend 
 
 var USER = sessionStorage.getItem('user')   // id of user 
-var CHATING_USER_ID       // id of user you are chating 
+export var CHATING_USER_ID       // id of user you are chating 
 var CHATING_CONVER_ID   // id of convesation you are chating 
-var MGS_SLICE = 0
+var MGS_SLICE = 0        // id slice of conversation loading 
+export var FILE_UP_LOAD     // file is sending 
 
-// set number order for all friend 
-var PIVOT = 1   // pivot for order list friend 
+
+// set number order for all friend
+// in order to arrange friend 
+export var PIVOT = 1   // pivot for order list friend 
 listBlockChat.forEach((element) => {
     element.setAttribute('number', 0)
 })
-
 
 //load user name and avatar 
 const USERNAME = sessionStorage.getItem('username')
@@ -35,26 +37,27 @@ function getTime() {
 } 
 
 //create message format 
-function createMessage(mess) {
+function createMessage(mess, image = null, file = null) {
     return {
         'from'      : USER, 
         'to'        : CHATING_USER_ID,
         'conver'    : CHATING_CONVER_ID, 
         'content'   : mess, 
-        'time'      : getTime()
+        'time'      : getTime(),
+        'image'     : image, 
+        'file'      : file
     }
 }
 
 // scroll 
-function scrollDown() {
+export function scrollDown() {
     chatbox.scrollTop = chatbox.scrollHeight
 }
 scrollDown()
 
 //make user online 
-async function UpdateOnlineUser() {
+export async function UpdateOnlineUser() {
     try {
-
         var data = {
             userID: USER, 
             socketID : socket.id
@@ -93,42 +96,75 @@ async function UpdateOnlineUser() {
 
 // load conversation content for slice = 0 
 function LoadConversation(mess) {
-    // chatbox.textContent = ''
-    mess.forEach(e => {
-        let newMessage = document.createElement('div')
-        if (e.from === USER) 
-            newMessage.classList.add('mess', 'my-message')
-        else 
-            newMessage.classList.add('mess', 'frnd-message')
-
-        let chatContent = document.createElement('p')
-        chatContent.innerHTML = `${e.content} <br><span>${e.time}</span>`
-        newMessage.appendChild(chatContent)
-        chatbox.appendChild(newMessage)
-    })  
-    // scrollDown()
+    mess.forEach(e => { loadNewFriendMessage(e) })  
+    scrollDown()
 } 
 
 // load conversation content for slice > 0
 function LoadHeadConversation(mess) {
-
     for (let i = mess.length-1; i >= 0; i--) {
-        let newMessage = document.createElement('div')
-        if (mess[i].from === USER) 
-            newMessage.classList.add('mess', 'my-message')
-        else 
-            newMessage.classList.add('mess', 'frnd-message')
-
-        let chatContent = document.createElement('p')
-        chatContent.innerHTML = `${mess[i].content} <br><span>${mess[i].time}</span>`
-        newMessage.appendChild(chatContent)
-        chatbox.insertBefore(newMessage, chatbox.firstChild)
+        loadNewFriendMessage(mess[i], true)
     }
 } 
 
+// load message of new friend from database and insert into chat box 
+// mess : message object from database 
+// head : type of insert, head=true insert on the top of conversation, head=false insert at the bottom 
+export function loadNewFriendMessage(mess, head=false) {
+    if (mess.image) {
+        const newMessage = document.createElement('div')
+        if (mess.from === USER) 
+            newMessage.classList.add('mess', 'my-message')
+        else 
+            newMessage.classList.add('mess', 'frnd-message')
+        const content = document.createElement('p')
+        const picture = document.createElement('img')
+        const time = document.createElement('span') 
+        time.innerText = mess.time
+        picture.src = mess.image
+        picture.style.maxWidth = "400px"
+        content.appendChild(picture)
+        content.appendChild(time)
+        newMessage.appendChild(content)
+        //insert into chat box 
+        if (!head) chatbox.appendChild(newMessage)
+        else chatbox.insertBefore(newMessage, chatbox.firstChild)
+    }
+    else if (mess.file) {
+        const newMessage = document.createElement('div')
+        if (mess.from === USER) 
+            newMessage.classList.add('mess', 'my-message')
+        else 
+            newMessage.classList.add('mess', 'frnd-message')
+        const url = document.createElement('a')
+        url.href = mess.file
+        url.innerText = mess.content
+        const time = document.createElement('span') 
+        time.innerText = mess.time
+        const content = document.createElement('p')
+        content.appendChild(url)
+        content.appendChild(time)
+        newMessage.appendChild(content)
+        //insert into chat box 
+        if (!head) chatbox.appendChild(newMessage)
+        else chatbox.insertBefore(newMessage, chatbox.firstChild)
+    }
+    else {
+        const newMessage = document.createElement('div')
+        if (mess.from === USER) 
+            newMessage.classList.add('mess', 'my-message')
+        else 
+            newMessage.classList.add('mess', 'frnd-message')
+        const content = document.createElement('p')
+        content.innerHTML = `${mess.content} <br><span>${mess.time}</span>`
+        newMessage.appendChild(content)
+        //insert into chat box 
+        if (!head) chatbox.appendChild(newMessage)
+        else chatbox.insertBefore(newMessage, chatbox.firstChild)
+    }
+}
 
-
-// load additional coversation content when scoll
+// load additional coversation content when scolling 
 chatbox.addEventListener('scroll', async () => {
     if (chatbox.scrollTop === 0) {
         try {
@@ -141,7 +177,7 @@ chatbox.addEventListener('scroll', async () => {
             // if there are no content 
             if (jsonResponse.length === 0) {
                 MGS_SLICE = undefined
-                return 
+                return  
             }
             LoadHeadConversation(jsonResponse)
         } catch(err) {
@@ -153,7 +189,7 @@ chatbox.addEventListener('scroll', async () => {
 
 // active user are chating 
 // input e = blockchat 
-function ActiveUser(e) {
+export function ActiveUser(e) {
     //if already active user
     if (e.classList.contains('active')) return 
 
@@ -199,7 +235,6 @@ function ActiveUser(e) {
 document.querySelectorAll('.blockchat').forEach(e => {
     e.addEventListener('click', () => ActiveUser(e))
 })
-
 
 
 // CLICK MAKE NEW FRIEND 
@@ -285,163 +320,265 @@ document.querySelectorAll('.list-friend button').forEach(e => {
 }) 
 
 
+
+
 //SOCKER SEND MESSAGE -----------------------------------------------------------
 
-socket.on('connect', ()=>{
-    console.log("Connect successfully", socket.id)
-    UpdateOnlineUser()
+// socket.on('connect', ()=>{
+//     console.log("Connect successfully", socket.id)
+//     UpdateOnlineUser()
+// })
+
+
+// past image or file into the chat input 
+inputMess.addEventListener("paste", (event) => {
+    const items = event.clipboardData.items
+    
+    console.log(items)
+    for (let i = 0; i < items.length; i++) {
+        if (items[i].kind !== 'file') {
+            event.preventDefault()
+            continue
+        }
+        const file = items[i].getAsFile()
+        console.log("file" , file)
+        console.log(items[i].kind, " ", items[i].type)
+
+        if (!file) continue 
+
+        let URLimg
+        // if file is image 
+        if (items[i].type.startsWith('image/')) {         
+            URLimg = URL.createObjectURL(file) 
+        }
+        // if it's not a iamge 
+        else {        
+            URLimg = 'https://cdn-icons-png.flaticon.com/512/3155/3155688.png'
+        }
+        const image = document.createElement('img')
+        image.src = URLimg
+        image.style.width = "70px"
+        // insert into input chat 
+        inputMess.appendChild(image)
+        FILE_UP_LOAD = file      
+    }
 })
 
+
 // send mess to friends 
-inputMess.addEventListener('keydown', event => {
-    if (event.key === 'Enter') {
-        // if doesn't have target user to chat 
-        if (!CHATING_USER_ID) return 
+inputMess.addEventListener('keydown', async event => {
 
-        let mess = createMessage(event.target.value)
-        socket.emit("sendMess", mess)
+    if (event.key !== "Enter") return 
+    event.preventDefault(); // Ngăn chặn hành động mặc định của phím
+
+    // if doesn't have target user to chat 
+    if (!CHATING_USER_ID) return 
+
+    let contentMess 
+    let currentTime = getTime()
+    // if that is a file 
+    if (FILE_UP_LOAD) {
+
+        const formdata = new FormData()
+        formdata.append("uploadFile", FILE_UP_LOAD)
         
-        let currentTime = getTime()
+        let response = await fetch(`${PORT}/uploadFile`, {
+            method: 'POST',
+            body: formdata
+        })
 
-        // load new message into box chat 
+        if (!response.ok) return Error("Fail when fetch")
+        let {downloadURL} = await response.json()
+        console.log(downloadURL)
+        //load mess into chat box 
+        
+        const newMessage = document.createElement('div')
+        newMessage.classList.add('mess', 'my-message')
+        const content = document.createElement('p')
+        const time = document.createElement('span') 
+        time.innerText = currentTime
+
+        if (FILE_UP_LOAD.type.startsWith('image')) {
+            const picture = document.createElement('img')
+            picture.src = downloadURL
+            picture.style.maxWidth = "400px"
+            content.appendChild(picture)
+            content.appendChild(time)
+            newMessage.appendChild(content)
+
+            //create message 
+            let mess = createMessage("[File]", downloadURL)
+            socket.emit("sendMess", mess)  // send mess to friend and save 
+        }
+        else {
+            const url = document.createElement('a')
+            url.href = downloadURL
+            url.innerText = FILE_UP_LOAD.name
+            content.appendChild(url)
+            content.appendChild(time)
+            newMessage.appendChild(content)
+
+            //create message 
+            let mess = createMessage(FILE_UP_LOAD.name, null, downloadURL)
+            socket.emit("sendMess", mess)  // send mess to friend and save 
+        }
+        chatbox.appendChild(newMessage)
+
+        //clear temp variable 
+        FILE_UP_LOAD = undefined
+
+        contentMess = "[File]"   // message visulize in friend list 
+    }
+    else {
+        // if that is not a file 
+        let mess = createMessage(inputMess.innerText)
+        socket.emit("sendMess", mess)
+
+        //load mess into chat box 
         let newMessage = document.createElement('div')
         newMessage.classList.add('mess', 'my-message')
         let content = document.createElement('p')
-        content.innerHTML = `${event.target.value} <br><span>${currentTime}</span>`
+        content.innerHTML = `${inputMess.innerText} <br><span>${currentTime}</span>`
         newMessage.appendChild(content)
         chatbox.appendChild(newMessage)
-        inputMess.value = ""
-        
-        //load message into list friend 
-        let list = document.querySelectorAll('.blockchat')
-  
-        let activeUser
-        // find target user  
-        for (let e of list) {
-            if (e.classList.contains('active')) {
-                activeUser = e
-                break
-            }
-        }
-        if (activeUser) {
-            activeUser.querySelector('.time').innerText = currentTime
-            activeUser.querySelector('.message p').innerText = mess.content
 
-            // set attribute number to order list friend 
-            if (activeUser.hasAttribute('number')) {
-                activeUser.setAttribute('number', ++PIVOT)
-            }
-            else activeUser.setAttribute('number', 1)
-        }
-
-        scrollDown()
+        contentMess = inputMess.innerText  // message visulize in friend list 
     }
-})
+    
+    // clean input chat box 
+    inputMess.innerHTML = ""
 
-// receive message from friends 
-socket.on("reviecedMess", (mess) => {
-
-    // check active user 
-    if (CHATING_USER_ID != mess.from)  {
-        // load red nofity 
-        let listpeople = document.querySelectorAll('.chat-list .blockchat')
-        // find who send this message 
-        let sendPeople 
-        for (let e of listpeople) {
-            if (e.getAttribute('key') == mess.from) {
-                sendPeople = e
-                break 
-            }
+    //load message into list friend 
+    let list = document.querySelectorAll('.blockchat')
+    let activeUser
+    // find target user  
+    for (let e of list) {
+        if (e.classList.contains('active')) {
+            activeUser = e
+            break
         }
-        console.log(sendPeople)
-       
-        if (sendPeople) {
-             // load notify to user who send message
-            let notify = sendPeople.querySelector('b')
-            if (notify) {
-                let number = parseInt(notify.textContent, 10)
-                number++
-                notify.textContent = number
-            }
-            else {
-                let newNotify = document.createElement('b')
-                newNotify.textContent = 1
-                sendPeople.querySelector('.message').appendChild(newNotify)
-            }
-            sendPeople.querySelector('.message p').textContent = mess.content
-            sendPeople.querySelector('.message p').style.fontWeight  = 700
-
-            // bring this user to the head of list friend 
-            let listFriend = document.querySelector('.chat-list')
-            listFriend.insertBefore(sendPeople, listFriend.firstChild)
-            sendPeople.setAttribute('number', ++PIVOT)   
-        }
-        return 
     }
+    if (activeUser) {
+        activeUser.querySelector('.time').innerText = currentTime
+        activeUser.querySelector('.message p').innerText = contentMess
 
-    //if active
-    const newMessage = document.createElement('div')
-    newMessage.classList.add('mess', 'frnd-message')
-    const content = document.createElement('p')
-    content.innerHTML = `${mess.content} <br><span>${mess.time}</span>`
-    newMessage.appendChild(content)
-    chatbox.appendChild(newMessage)
-
+        // set attribute number to order list friend 
+        if (activeUser.hasAttribute('number')) {
+            activeUser.setAttribute('number', ++PIVOT)
+        }
+        else activeUser.setAttribute('number', 1)
+    }
     scrollDown()
 })
 
-//receive message from new friend 
-socket.on("sendNewFriend", (newFriend, newMessage) => {
-    console.log(newFriend)
-    let newDiv = document.createElement('div')
-    newDiv.classList.add('blockchat');
-    newDiv.setAttribute('key', newFriend.pool_conversation_id);  
-    newDiv.setAttribute('id', newMessage.conver);
+// // receive message from friends 
+// socket.on("reviecedMess", (mess) => {
 
-    newDiv.innerHTML = `
-            <div class="imgchat">
-                <img src="${newFriend.avatar}" alt="" class="cover">
-            </div>
+//     // check active user 
+//     if (CHATING_USER_ID != mess.from)  {
+//         // load red nofity 
+//         let listpeople = document.querySelectorAll('.chat-list .blockchat')
+//         // find who send this message 
+//         let sendPeople 
+//         for (let e of listpeople) {
+//             if (e.getAttribute('key') == mess.from) {
+//                 sendPeople = e
+//                 break 
+//             }
+//         }
+//         console.log(sendPeople)
+       
+//         if (sendPeople) {
+//              // load notify to user who send message
+//             let notify = sendPeople.querySelector('b')
+//             //if already has notification yet
+//             if (notify) {
+//                 let number = parseInt(notify.textContent, 10)
+//                 number++
+//                 notify.textContent = number
+//             }
+//             //if there has been no notification yet 
+//             else {
+//                 let newNotify = document.createElement('b')
+//                 newNotify.textContent = 1
+//                 sendPeople.querySelector('.message').appendChild(newNotify)
+//             }
+//             sendPeople.querySelector('.message p').textContent = mess.content
+//             sendPeople.querySelector('.message p').style.fontWeight  = 700
+
+//             // bring this user to the head of list friend 
+//             let listFriend = document.querySelector('.chat-list')
+//             listFriend.insertBefore(sendPeople, listFriend.firstChild)
+//             sendPeople.setAttribute('number', ++PIVOT)   
+//         }
+//         return 
+//     }
+
+//     //if active
+//     // const newMessage = document.createElement('div')
+//     // newMessage.classList.add('mess', 'frnd-message')
+//     // const content = document.createElement('p')
+//     // content.innerHTML = `${mess.content} <br><span>${mess.time}</span>`
+//     // newMessage.appendChild(content)
+//     // chatbox.appendChild(newMessage)
+
+//     loadNewFriendMessage(mess)
+
+//     scrollDown()
+// })
+
+// //receive message from new friend 
+// socket.on("sendNewFriend", (newFriend, newMessage) => {
+//     console.log(newFriend)
+//     let newDiv = document.createElement('div')
+//     newDiv.classList.add('blockchat');
+//     newDiv.setAttribute('key', newFriend.pool_conversation_id);  
+//     newDiv.setAttribute('id', newMessage.conver);
+
+//     newDiv.innerHTML = `
+//             <div class="imgchat">
+//                 <img src="${newFriend.avatar}" alt="" class="cover">
+//             </div>
             
-            <div class="details">
-                <div class="listHead">
-                    <h4>${newFriend.name}</h4>
-                    <h5 class="newfriend">New Friend</h5>
-                    <p class="time" >${newMessage.time}</p>
-                </div>
-                <div class="message">
-                    <p style="font-weight:700">${newMessage.content}</p>
-                    <b>1</b>
-                </div>
-            </div>`
+//             <div class="details">
+//                 <div class="listHead">
+//                     <h4>${newFriend.name}</h4>
+//                     <h5 class="newfriend">New Friend</h5>
+//                     <p class="time" >${newMessage.time}</p>
+//                 </div>
+//                 <div class="message">
+//                     <p style="font-weight:700">${newMessage.content}</p>
+//                     <b>1</b>
+//                 </div>
+//             </div>`
 
-    //add active event listener
-    newDiv.addEventListener('click', () => ActiveUser(newDiv))
+//     //add active event listener
+//     newDiv.addEventListener('click', () => ActiveUser(newDiv))
 
-    // insert in front of list 
-    let chatList = document.querySelector('.chat-list');
-    chatList.insertBefore(newDiv, chatList.firstChild);
-})
+//     // insert in front of list 
+//     let chatList = document.querySelector('.chat-list');
+//     chatList.insertBefore(newDiv, chatList.firstChild);
+// })
 
-// green tick for new online user 
-socket.on("receiveOnline", (id) => {
-    console.log("new online", id)
-    let onlineUser = Array.from(document.querySelectorAll('.blockchat'))
-                          .find(e => e.getAttribute('key') === id)
-    if (onlineUser) {
-        onlineUser.querySelector('.online').style.visibility = 'visible'
-    }
-})
+// // green tick for new online user 
+// socket.on("receiveOnline", (id) => {
+//     console.log("new online", id)
+//     let onlineUser = Array.from(document.querySelectorAll('.blockchat'))
+//                           .find(e => e.getAttribute('key') === id)
+//     if (onlineUser) {
+//         onlineUser.querySelector('.online').style.visibility = 'visible'
+//     }
+// })
 
-// delete green tick for offline user 
-socket.on("receiveOffline", (id) => {
-    console.log("new offline", id)
-    let onlineUser = Array.from(document.querySelectorAll('.blockchat'))
-                          .find(e => e.getAttribute('key') === id)
-    if (onlineUser) {
-        onlineUser.querySelector('.online').style.visibility = 'hidden'
-    }
-})
+// // delete green tick for offline user 
+// socket.on("receiveOffline", (id) => {
+//     console.log("new offline", id)
+//     let onlineUser = Array.from(document.querySelectorAll('.blockchat'))
+//                           .find(e => e.getAttribute('key') === id)
+//     if (onlineUser) {
+//         onlineUser.querySelector('.online').style.visibility = 'hidden'
+//     }
+// })
 
 
 // update pool conversation when close web

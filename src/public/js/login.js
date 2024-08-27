@@ -62,11 +62,13 @@ document.querySelector('.register').addEventListener('click', (event) => {
     const name = document.querySelector(".register-name").value;
     const img = document.querySelector(".register-img").value;
 
+    const avatar = img ? img : 'https://cellphones.com.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg'
+
     let data = {
         account : acc, 
         password : pwd, 
         username : name, 
-        avatar : img,
+        avatar : avatar,
     }
 
     console.log(data)

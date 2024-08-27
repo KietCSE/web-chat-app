@@ -3,7 +3,7 @@ const homeController = require('./HomeController')
 const loginController = require('./LoginController')
 const passport = require('passport')
 
-function Route(app, io) {
+function Route(app, io, upload) {
     // view home and load user first view 
 
     // view login page
@@ -65,6 +65,7 @@ function Route(app, io) {
     // home page for each user 
     app.get('/user/:id',  async (req, res) => {
         try {
+            // get list friend and newfriend to load into frontend 
             const {listFriend, listnewFriend} = await homeController.GetDataForHomePage(req.params.id)
             homeController.HomePage(req, res, listFriend, listnewFriend) 
         }
@@ -78,6 +79,11 @@ function Route(app, io) {
 
     app.get('/chat/:id/:slice', async (req, res) => {
         await ConversationController.LoadSlideConversationById(req, res)      
+    })
+
+    app.post('/uploadFile', upload.single('uploadFile') , async (req, res) => {
+        const data = await homeController.UpLoadFileToFirebase(req.file)
+        return res.json({"downloadURL" : data })
     })
 }
 

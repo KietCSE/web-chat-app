@@ -1,3 +1,5 @@
+console.log("linked!!!!")
+
 export var queue = {}
 
 export function PushMessage(mess) {

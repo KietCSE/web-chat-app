@@ -1,5 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 
+:root {
+    --friend-mess: #fff; 
+    --you-mess: #3d42d5; 
+    --background-chat-box: #faebd7; 
+    --background-color: linear-gradient(to right, #e2e2e2, #c9d6ff);
+    --block-chat-active: #A4A3AA; 
+    --block-chat-hover: #E9E5E1;
+    --find-friend-background: #B1B0B9; 
+    --newfriend-background: #fff; 
+    --newfriend-button: #078CEC;
+    --newfriend-hover: #E5E8ED;
+}
+
 * {
     margin: 0; 
     padding: 0;
@@ -7,19 +20,23 @@
     font-family: "Open Sans", sans-serif;
 } 
 
-body {
+body{
+    background-color: #c9d6ff;
+    background: linear-gradient(to right, #e2e2e2, #c9d6ff);
     display: flex;
-    justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    background: linear-gradient(#009688 0%, #009688 130px, #d9dbd5 130px, #d9dbd5 100%);
+    justify-content: center;
+    flex-direction: column;
+    height: 100vh;
 }
 
 .container {
     position: relative; 
-    width: 1396px;
+    /* width: 1396px; */
+    width: 100%;
     max-width: 100%;
-    height: calc(100vh - 40px);
+    /* height: 100%; */
+    height: calc(100vh - 1px);
     background: #fff;
     box-shadow: 0 .5rem 1.5rem rgba(0,0,0,0.1); 
     display: flex;
@@ -29,13 +46,15 @@ body {
     position: relative;
     background: #fff;
     flex: 30%; 
+    max-width: 30%;
     border-right: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .container .rightSide {
     position: relative;
-    background-color: antiquewhite;
+    background-color: var(--background-chat-box);
     flex: 70%; 
+    max-width: 70%;
 }
 
 .header {
@@ -100,7 +119,7 @@ body {
 }
 
 .search-chat button:hover {
-    background-color:#009688;
+    background-color: var(--block-chat-active);
 }
 
 
@@ -149,12 +168,16 @@ body {
 }
 
 .chat-list .blockchat.active {
-    background-color:#009688;
+    background-color: var(--block-chat-active);
 }
 
 
 .chat-list .blockchat:hover {
-    background-color: #009688;
+    background-color: var(--block-chat-hover);
+}
+
+.chat-list .blockchat.active:hover {
+    background-color: var(--block-chat-active);
 }
 
 .chat-list .blockchat .imgchat {
@@ -271,11 +294,12 @@ body {
     right: 0; 
     text-align: right; 
     max-width: 65%;
-    background-color: yellow;
+    background-color: var(--you-mess);
     padding: 2px 10px;
     word-wrap: break-word;
     overflow-wrap: break-word;
     border-radius: 10px;
+    color: #fff;
 }
 
 .mess p::before {
@@ -304,13 +328,14 @@ body {
 }
 
 .frnd-message p {
-    background-color: #fff;
+    background-color: var(--friend-mess);
     text-align: left;
+    color: #000000;
 }
 
 .chat-input {
     position: relative;
-    width: 100%;
+    max-width: 100%;
     height: 70px;
     display: flex;
     background-color: #dcded6;
@@ -323,6 +348,18 @@ body {
     cursor: pointer;
     font-size: 1.8rem;
     color: #111;
+}
+
+.chat-input .mainInput {
+    width: 85%;
+    min-height: 10px;
+    background-color: white;
+    border-radius: 15px;
+    padding: 10px;
+    margin: 0px 10px;
+    border: none;
+    outline: none;
+    word-wrap: break-word;
 }
 
 .chat-input input {
@@ -341,7 +378,7 @@ body {
 .find-friend {
     z-index: 1000;
     position: absolute;
-    background-color: tomato;
+    background-color: var(--find-friend-background);
     border-radius: 10px;
     width: 35vw;
     height: 80vh;
@@ -384,7 +421,7 @@ body {
 }
 
 .friend-box {
-    background-color: #009688;
+    background-color: var(--newfriend-background);
     height: 80px;
     position: relative;
     border-bottom: 1px solid;
@@ -395,7 +432,7 @@ body {
 }
 
 .friend-box:hover {
-    background-color: aquamarine;
+    background-color: var(--newfriend-hover);
 }
 
 .friend-box img {
@@ -414,7 +451,7 @@ body {
 .friend-box button {
     height: 60%;
     width: 100px;
-    background-color: aquamarine;
+    background-color: var(--newfriend-button);
 }
 
 .friend-box button:hover {
