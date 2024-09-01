@@ -388,6 +388,7 @@ body{
     height: 80vh;
     display: flex;
     flex-direction: column;
+    /* align-items: center; */
     padding: 20px;
     visibility: hidden;
     transition: visibility 0s, opacity 1s linear;
@@ -422,6 +423,9 @@ body{
 .list-friend {
     overflow-y: auto;
     margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .friend-box {
@@ -433,6 +437,7 @@ body{
     justify-content: space-between;
     align-items: center;
     padding: 20px;
+    width: 100%;
 }
 
 .friend-box:hover {
@@ -491,6 +496,16 @@ body{
     visibility: hidden;
 }
 
+.imgText .imgchat {
+    position: relative;
+    min-width: 45px;
+    height: 45px;
+    background-color: #d9dbd5;
+    border-radius: 50%;
+    margin-right: 10px;
+    border: solid 0.2px gainsboro;
+}
+
 /* notify new friend */
 .newfriend {
     background-color: red;
@@ -499,4 +514,21 @@ body{
     padding: 0px 5px;
     border-radius: 5px;
     font-weight: 600;
+}
+
+.logout {
+    padding: 0px 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #d9dbd5;
+}
+
+.logout:hover {
+    background-color: #FEA42A;
+}
+
+.more-friend {
+    margin-top: 10px;
+    padding: 5px 10px;
+    width: 30%;
 }

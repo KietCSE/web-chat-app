@@ -23,7 +23,7 @@ document.querySelector('.login').addEventListener('click', (event) => {
     const pwd = document.querySelector(".login-pwd").value;
     
     let data = {
-        account : acc, 
+        username : acc, 
         password : pwd
     }
     //check user account 
@@ -48,11 +48,13 @@ document.querySelector('.login').addEventListener('click', (event) => {
             AUTHENTICATION */
             console.log('WRONG USER OR PASSWORD')
             console.log(data.message)
+            alert(data.message)
         }
     }) 
-    .catch(erro => { 
+    .catch(error => { 
         /*JS EXCEPTION HANDLER*/
         console.log(error)
+        alert('Tai khoan mat khau khong dung')
     })
 });
 
@@ -100,6 +102,7 @@ document.querySelector('.register').addEventListener('click', (event) => {
             AUTHENTICATION */
             console.log(data.message)
             console.log('WRONG USER OR PASSWORD')
+            alert(data.message)
         }
     }) 
     .catch(error => { 

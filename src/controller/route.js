@@ -2,19 +2,24 @@ const ConversationController = require('./ConversationController')
 const homeController = require('./HomeController')
 const loginController = require('./LoginController')
 const passport = require('passport')
+const  { isAuthenticated } = require('../middleware/checkAuthenticate')
 
 function Route(app, io, upload) {
     // view home and load user first view 
+    app.get('/', (req, res) => res.redirect(`/login`))
 
     // view login page
-    app.get('/login',(req, res) => loginController.LoginPage(req, res))
+    app.get('/login',(req, res) => {
+        // if (req.isAuthenticated()) res.redirect('/checklogin')
+        loginController.LoginPage(req, res)
+    })
 
     /* load online user and update online list */
     app.post('/load-online', (req, res) => loginController.LoadOnlineUser(req, res, io))
     
     //check user account for login
-    app.post('/checklogin', async (req, res) => {
-        await loginController.CheckLoginUser(req, res)
+    app.post('/checklogin', passport.authenticate('local'), (req, res) => {
+        loginController.CheckLoginUser(req, res)
     })
 
     //create user account 
@@ -63,13 +68,15 @@ function Route(app, io, upload) {
     // })
 
     // home page for each user 
-    app.get('/user/:id',  async (req, res) => {
+    app.get('/user/:id', isAuthenticated, async (req, res) => {
         try {
             // get list friend and newfriend to load into frontend 
             const {listFriend, listnewFriend} = await homeController.GetDataForHomePage(req.params.id)
             homeController.HomePage(req, res, listFriend, listnewFriend) 
         }
-        catch(err) {} 
+        catch(err) {
+            console.log(err)
+        } 
     })
 
     // Load friend conversation content 
@@ -84,6 +91,26 @@ function Route(app, io, upload) {
     app.post('/uploadFile', upload.single('uploadFile') , async (req, res) => {
         const data = await homeController.UpLoadFileToFirebase(req.file)
         return res.json({"downloadURL" : data })
+    })
+
+    app.get('/logout', (req, res) => {
+        req.logout((err) => {
+            if (err) return res.sendStatus(400)
+            console.log(req.session)
+            res.json("Log out successfully!")
+        })
+    })
+
+    app.get('/more-friend/:id/:slice', async (req, res) => {
+        const listFriend = await homeController.LoadMoreFriend(req.params.slice, req.params.id)
+        res.status(200).json(listFriend)
+    })
+
+    app.post('/user/:userid/search-friend', async (req, res) => {
+        const matchString = req.body.text.split(/[;,\s]+/)
+        console.log(matchString)
+        const list = await homeController.SearchFriend(matchString, req.params.userid)
+        res.status(200).json(list)
     })
 }
 

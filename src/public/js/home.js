@@ -1,4 +1,3 @@
-
 //create socket
 const PORT = "http://localhost:3000"
 
@@ -11,8 +10,9 @@ var USER = sessionStorage.getItem('user')   // id of user
 export var CHATING_USER_ID       // id of user you are chating 
 var CHATING_CONVER_ID   // id of convesation you are chating 
 var MGS_SLICE = 0        // id slice of conversation loading 
+var FRD_SLICE = 0
 export var FILE_UP_LOAD     // file is sending 
-
+var FIND_FRD_HTML = document.querySelector('.list-friend').innerHTML
 
 // set number order for all friend
 // in order to arrange friend 
@@ -55,6 +55,7 @@ export function scrollDown() {
 }
 scrollDown()
 
+
 //make user online 
 export async function UpdateOnlineUser() {
     try {
@@ -85,7 +86,6 @@ export async function UpdateOnlineUser() {
                 }
             })
         }
-
     } catch (err) {
         console.error('Error:', err);
     }
@@ -100,12 +100,14 @@ function LoadConversation(mess) {
     scrollDown()
 } 
 
+
 // load conversation content for slice > 0
 function LoadHeadConversation(mess) {
     for (let i = mess.length-1; i >= 0; i--) {
         loadNewFriendMessage(mess[i], true)
     }
 } 
+
 
 // load message of new friend from database and insert into chat box 
 // mess : message object from database 
@@ -164,6 +166,7 @@ export function loadNewFriendMessage(mess, head=false) {
     }
 }
 
+
 // load additional coversation content when scolling 
 chatbox.addEventListener('scroll', async () => {
     if (chatbox.scrollTop === 0) {
@@ -197,9 +200,15 @@ export function ActiveUser(e) {
     let chatingName = e.querySelector('h4').textContent
     document.getElementById('chating-name').innerText = chatingName
 
-    //change avatar of chating user 
+    //change avatar of chating user load online icon
     let avatar = e.querySelector('img').src
     document.getElementById('chating-avatar').src = avatar
+    const isonline = e.querySelector('.imgchat .online')
+    if (isonline && isonline.style.visibility === 'visible') {
+        document.querySelector('.imgText .imgchat .online').style.visibility = 'visible'
+    }
+    else document.querySelector('.imgText .imgchat .online').style.visibility = 'hidden '
+
 
     //else active new user 
     document.querySelectorAll('.blockchat').forEach(element => {
@@ -243,6 +252,10 @@ const listpeople = document.querySelector('.find-friend')
 
 //click on new friend button
 newfriend.addEventListener('click', () => {
+    if (FIND_FRD_HTML) {
+        document.querySelector('.list-friend').innerHTML = FIND_FRD_HTML
+        AddEventToCreateNewFriend()
+    }
     listpeople.style.visibility = 'visible';
 
     document.addEventListener('click', (event) => {
@@ -250,84 +263,135 @@ newfriend.addEventListener('click', () => {
             listpeople.style.visibility = 'hidden';
         }
     });
- 
 });
 
-//ADD NEW BOX CHAT OF NEW FRIEND 
-document.querySelectorAll('.list-friend button').forEach(e => {
-    e.addEventListener('click', (event) => {
 
-        //close if new friend already active 
-        if (CHATING_USER_ID === e.parentElement.getAttribute('key')) return 
+function AddEventToCreateNewFriend() {
+    //ADD NEW BOX CHAT OF NEW FRIEND 
+    document.querySelectorAll('.list-friend .friend-box button').forEach(e => {
+        e.addEventListener('click', (event) => {
 
-        //close friend list 
-        listpeople.style.visibility = 'hidden';
+            //close if new friend already active 
+            if (CHATING_USER_ID === e.parentElement.getAttribute('key')) return 
 
-        // name of new friend 
-        let NameOfNewFriend =  e.parentElement.querySelector('span').textContent 
-        // key of newfriend 
-        let NewKeyFriend = e.parentElement.getAttribute('key')
-        //avatar of new friend
-        let NewAvatar = e.parentElement.querySelector('img').src
+            //close friend list 
+            listpeople.style.visibility = 'hidden';
 
-        //create new box chat for new friend 
-        let newDiv = document.createElement('div')
-        newDiv.classList.add('blockchat');
-        newDiv.setAttribute('key', NewKeyFriend);  
-        newDiv.setAttribute('id', USER + NewKeyFriend);
+            // name of new friend 
+            let NameOfNewFriend =  e.parentElement.querySelector('span').textContent 
+            // key of newfriend 
+            let NewKeyFriend = e.parentElement.getAttribute('key')
+            //avatar of new friend
+            let NewAvatar = e.parentElement.querySelector('img').src
 
-        newDiv.innerHTML = `
-                <div class="imgchat">
-                    <img src="${NewAvatar}" alt="" class="cover">
-                    <div class="online"></div>
-                </div>
-                
-                <div class="details">
-                    <div class="listHead">
-                        <h4>${NameOfNewFriend}</h4>
-                        <h5 class="newfriend">New Friend</h5>
-                        <p class="time"></p>
+            //create new box chat for new friend 
+            let newDiv = document.createElement('div')
+            newDiv.classList.add('blockchat');
+            newDiv.setAttribute('key', NewKeyFriend);  
+            newDiv.setAttribute('id', USER + NewKeyFriend);
+
+            newDiv.innerHTML = `
+                    <div class="imgchat">
+                        <img src="${NewAvatar}" alt="" class="cover">
+                        <div class="online"></div>
                     </div>
-                    <div class="message">
-                        <p></p>
-                    </div>
-                </div>`
+                    
+                    <div class="details">
+                        <div class="listHead">
+                            <h4>${NameOfNewFriend}</h4>
+                            <h5 class="newfriend">New Friend</h5>
+                            <p class="time"></p>
+                        </div>
+                        <div class="message">
+                            <p></p>
+                        </div>
+                    </div>`
 
-        //add active event listener
-        newDiv.addEventListener('click', () => ActiveUser(newDiv))
+            //add active event listener
+            newDiv.addEventListener('click', () => ActiveUser(newDiv))
 
-        // insert friend box to front end 
-        let list = document.querySelector('.chat-list')
-        list.insertBefore(newDiv, list.firstChild)
-        
-        //auto active new friend chat box 
-        document.querySelectorAll('.blockchat').forEach(element => {
-            element.classList.remove('active')
+            // insert friend box to front end 
+            let list = document.querySelector('.chat-list')
+            list.insertBefore(newDiv, list.firstChild)
+            
+            //auto active new friend chat box 
+            document.querySelectorAll('.blockchat').forEach(element => {
+                element.classList.remove('active')
+            })
+            newDiv.classList.add('active')
+
+            //auto change chating user
+            document.getElementById('chating-avatar').src = NewAvatar
+
+            //update chating-user
+            CHATING_USER_ID = NewKeyFriend
+            CHATING_CONVER_ID = USER + NewKeyFriend  // new chat conversation id 
+
+            // clear content
+            chatbox.textContent = ''
+
         })
-        newDiv.classList.add('active')
+    }) 
+}
+AddEventToCreateNewFriend()
 
-        //auto change chating user
-        document.getElementById('chating-avatar').src = NewAvatar
 
-        //update chating-user
-        CHATING_USER_ID = NewKeyFriend
-        CHATING_CONVER_ID = USER + NewKeyFriend  // new chat conversation id 
+function LoadSearchedFriend(data) {
+    const NewFriendList = document.querySelector('.list-friend')
+    data.forEach(element => {
+        const newfriend = document.createElement('div')
+        newfriend.classList.add('friend-box')
+        newfriend.setAttribute('key', element.key)
+        newfriend.innerHTML = `
+            <img src="${element.avatar}" alt="">
+            <span>${element.name}</span>
+        `
+        if (element.isFriend) {
+            const ob = document.createElement('p')
+            ob.innerText = 'YOUR FRIEND'
+            newfriend.appendChild(ob)
+        }
+        else {
+            const button = document.createElement('button')
+            button.innerText = 'CONNECT'
+            newfriend.appendChild(button)
+        }
 
-        // clear content
-        chatbox.textContent = ''
-
+        NewFriendList.insertBefore(newfriend, NewFriendList.lastElementChild)
     })
-}) 
+}
+
+// CLICK [MORE] BUTTON TO LOAD MORE NEW FRIEND 
+document.querySelector('.list-friend .more-friend').addEventListener('click', async (event) => {
+    const response = await fetch(`${PORT}/more-friend/${USER}/${++FRD_SLICE}`)
+    if (!response.ok) return Error("Error when load new friend")
+    const data = await response.json()
+    LoadSearchedFriend(data)
+    AddEventToCreateNewFriend()
+})
 
 
+// SEARCH TO FIND NEW FRIEND 
+document.querySelector('.search-new-friend').addEventListener('keydown',  async event => {
+    if (event.key !== "Enter") return
+    const text = document.querySelector('.search-new-friend').value
+    console.log(text)
 
+    const response = await fetch(`${PORT}/user/${USER}/search-friend`, {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({"text" : text })
+    })
+    if (!response.ok) return Error('Fail to search new friend') 
+    const data = await response.json() 
 
-//SOCKER SEND MESSAGE -----------------------------------------------------------
-
-// socket.on('connect', ()=>{
-//     console.log("Connect successfully", socket.id)
-//     UpdateOnlineUser()
-// })
+    const NewFriendList = document.querySelector('.list-friend')
+    NewFriendList.innerHTML = ''
+    LoadSearchedFriend(data)
+    AddEventToCreateNewFriend()
+ })
 
 
 // past image or file into the chat input 
@@ -603,7 +667,13 @@ window.addEventListener('beforeunload', function (event) {
     socket.emit('updatePoolConver', update, USER)
 });
 
-// END SOCKET -----------------------------------------------------------------
+
+//LOG OUT USER 
+document.querySelector('.header .logout').addEventListener('click', async () => {
+    window.location.href = `${PORT}/login`
+    const response = await fetch(`${PORT}/logout`)
+    if (!response.ok) return Error('Error when log out')
+})
 
 
 

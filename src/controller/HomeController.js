@@ -23,12 +23,15 @@ class HomeController {
     }
 
     //load all user from database 
-    async LoadNewFriend() {
+    async LoadNewFriend(slice = 0) {
         try {
-            const res = await User.find(); 
+            const SIZE = parseInt(process.env.SIZE_OF_SLICE_NEW_FRIEND) || 10
+            const res = await User.find()
+                                  .skip(slice*SIZE)
+                                  .limit(SIZE)
             return multipleDataToObject(res)
         } catch (err) {
-            return
+            console.log(err)
         }
     }
 
@@ -70,7 +73,6 @@ class HomeController {
     */ 
     async UpLoadFileToFirebase(file) {
         try {
-            
             if (!file) return null
             const filename = new Date().getTime() + '-' + file.originalname;
             // if this file is an image 
@@ -95,6 +97,77 @@ class HomeController {
         } catch (error) {
             console.log(error)
         }
+    }
+
+
+    /* load more new friend */
+    async LoadMoreFriend(slice, curerntUserId) {
+        try {
+            // load list of friend 
+            let listFriend = await this.LoadPoolConversation(curerntUserId)
+
+            // load all user from database 
+            let ListUser = await this.LoadNewFriend(slice)
+
+            let listFriendID = [] 
+            listFriend.forEach(e => {
+                listFriendID.push(e.id_user)
+            })
+
+            // create list new friend 
+            let listnewFriend = [] 
+            ListUser.forEach(element => {
+                if (element.pool_conversation_id === curerntUserId) return 
+                const isFriend = listFriendID.includes(element.pool_conversation_id)
+                listnewFriend.push({ 
+                    name : element.name, 
+                    isFriend : isFriend, 
+                    key : element.pool_conversation_id,
+                    avatar: element.avatar
+                })
+            });
+
+            return listnewFriend
+        }
+        catch(err) {
+            console.log(err)
+        }
+    }
+
+
+    /* search name of new friend 
+       name: name of new friend 
+       currentUserId: user is searching 
+    */
+    async SearchFriend(substring, curerntUserId) {
+        // load current friend of user 
+        let listFriend = await this.LoadPoolConversation(curerntUserId)
+        let listFriendID = [] 
+        listFriend.forEach(e => {
+            listFriendID.push(e.id_user)
+        })
+
+        // create array of condition 
+        const condition = substring.map(e => (
+            { name : { $regex: e, $options: 'i'} }
+        ))
+
+        // load new friend through name 
+        let listnewFriend = [] 
+        const data = await User.find({ $or: condition })
+        if (data) {  
+            data.forEach(element => {
+                if (element.pool_conversation_id === curerntUserId) return 
+                const isFriend = listFriendID.includes(element.pool_conversation_id)
+                listnewFriend.push({ 
+                    name : element.name, 
+                    isFriend : isFriend, 
+                    key : element.pool_conversation_id,
+                    avatar: element.avatar
+                })
+            });
+        }
+        return listnewFriend
     }
 }
 

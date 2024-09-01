@@ -101,6 +101,10 @@ socket.on("receiveOnline", (id) => {
     if (onlineUser) {
         onlineUser.querySelector('.online').style.visibility = 'visible'
     }
+
+    if (home.CHATING_USER_ID === id) {
+        document.querySelector('.imgText .imgchat .online').style.visibility = 'visible'
+    }
 })
 
 
@@ -111,6 +115,10 @@ socket.on("receiveOffline", (id) => {
                           .find(e => e.getAttribute('key') === id)
     if (onlineUser) {
         onlineUser.querySelector('.online').style.visibility = 'hidden'
+    }
+
+    if (home.CHATING_USER_ID === id) {
+        document.querySelector('.imgText .imgchat .online').style.visibility = 'hidden'
     }
 })
 

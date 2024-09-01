@@ -32,31 +32,36 @@ class LoginController {
     }
 
     //check valid account user 
+    // async CheckLoginUser(req, res) { 
+    //     try {
+    //         const { account: acc, password: pwd } = req.body;
+
+    //         // find user account in database 
+    //         let user = await User.findOne({account : acc})
+    //         if (user) {
+    //             // let checkPassword = await encoder.verifyPassword(pwd, user.password)
+    //             let checkPassword = pwd == user.account
+
+    //             if (!checkPassword) 
+    //                 res.status(200).json({status: false, message: "wrong password"})
+
+    //             const userID = user.pool_conversation_id
+    //             // response client 
+    //             res.status(200).json({status : true, userID: userID, username : user.name, avatar : user.avatar})
+    //         }
+    //         else {
+    //             res.status(500).json({status: false, message: "wrong account"})
+    //         }
+    //     }
+    //     catch (error) {
+    //         console.log(error)
+    //         ///
+    //     }
+    // }
+
+    // check valid account user 
     async CheckLoginUser(req, res) { 
-        try {
-            const { account: acc, password: pwd } = req.body;
-
-            // find user account in database 
-            let user = await User.findOne({account : acc})
-            if (user) {
-                // let checkPassword = await encoder.verifyPassword(pwd, user.password)
-                let checkPassword = pwd == user.account
-
-                if (!checkPassword) 
-                    res.status(200).json({status: false, message: "wrong password"})
-
-                const userID = user.pool_conversation_id
-                // response client 
-                res.status(200).json({status : true, userID: userID, username : user.name, avatar : user.avatar})
-            }
-            else {
-                res.status(500).json({status: false, message: "wrong account"})
-            }
-        }
-        catch (error) {
-            console.log(error)
-            ///
-        }
+        return res.json(req.user)  // return user information to client 
     }
 
     //create new account 
@@ -72,16 +77,17 @@ class LoginController {
             } 
             let user = await User.findOne({account : acc})
             if (user) {
-                res.status(500).json({status: false, message : "Tai khoan hoac mat khau khong hop le"})
+                res.status(500).json({status: false, message : "Ten dang nhap da duoc su dung"})
                 return 
             }
 
             //create user ID = conversation pool ID
             const userID = encoder.encodeID(pwd, LENGTHCODE)  //userID = conversationID
 
-            //hash password 
-            // const newpwd = await encoder.hashPassword(pwd)
-            // console.log(newpwd)
+            //hash password
+            if (process.env.ENCODE_PASSWORD === 'true') {
+                pwd = await encoder.hashPassword(pwd)
+            }            
 
             //create new account 
             let newUser = new User({
@@ -103,13 +109,17 @@ class LoginController {
             })
             await conversation.save()
             
-
-            //response client to load front end 
-            res.status(200).json({
+            const response = {
                 status : true, 
                 userID : userID,
                 username : req.body.username,  
                 avatar : req.body.avatar,
+            }
+
+            req.login(response, (err) => {
+                if (err) console.log(err)
+                //response client to load front end 
+                res.status(200).json(response)
             })
         }
         catch (err) {
