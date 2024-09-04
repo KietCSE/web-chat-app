@@ -100,7 +100,7 @@ class HomeController {
     }
 
 
-    /* load more new friend */
+    /* load more new friend when click button [MORE]*/
     async LoadMoreFriend(slice, curerntUserId) {
         try {
             // load list of friend 

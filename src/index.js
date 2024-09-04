@@ -27,10 +27,12 @@ io.on("connection", (socket => socketServer.SocketHandle(io, socket)))
 // multer setting for uploading files 
 const upload = multer({ storage: multer.memoryStorage() });
 
+
 //set up view engine 
 app.engine('handlebars', handlebars.engine()); //set up view engine for application 
 app.set('view engine', 'handlebars'); //set up defaut view engine for application 
 app.set('views', path.join(__dirname, '/views')); //set up folder for view 
+
 
 //set up static folder (css, img, js)
 app.use(express.static(path.join(__dirname, 'public')));
@@ -51,37 +53,9 @@ app.use(passport.session());
 app.use(express.json())   // handle json type 
 app.use(express.urlencoded({ extended: true }));  //handle formadata type 
 
-
 //handle route
 route(app, io, upload)
 
-// app.post('/auth', passport.authenticate('local'), (req, res) => {
-//     console.log(req.isAuthenticated())
-//     console.log(req.user)
-//     console.log(req.session.id)
-//     console.log(req.session)
-//     res.json(req.user)
-// })
-
-// app.get('/', (req, res) => {
-//     console.log(req.isAuthenticated())
-//     console.log(req.user)
-//     console.log(req.session.id)
-//     console.log(req.session)
-//     res.json('welcome back!!')
-// })
-
-// app.post("/logout", (req, res) => {
-//     if (!req.isAuthenticated()) {
-//       // Nếu người dùng không được xác thực, trả về mã trạng thái 401 (Unauthorized)
-//       return res.json('you have not authenticated yet!')
-//     }
-//     req.logout((err) => {
-//         if (err) return res.sendStatus(400)
-//         console.log(req.session)
-//         res.json("you are logout !!")
-//     })
-//   })
 
 //launch port 
 const port = process.env.NODE_LOCAL_PORT || 3000;

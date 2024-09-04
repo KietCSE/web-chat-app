@@ -42,7 +42,6 @@ passport.serializeUser((id, done) => {
 // attach user infor from sesssion to req
 passport.deserializeUser((user, done) => {
     try {
-        console.log("inside deserualizeuser")
         if (user) done(null, user.userID)
         else throw Error("UserID is not define in cookie")
     }

@@ -15,7 +15,7 @@ function Route(app, io, upload) {
     })
 
     /* load online user and update online list */
-    app.post('/load-online', (req, res) => loginController.LoadOnlineUser(req, res, io))
+    app.post('/load-online', async (req, res) => await loginController.LoadOnlineUser(req, res, io))
     
     //check user account for login
     app.post('/checklogin', passport.authenticate('local'), (req, res) => {

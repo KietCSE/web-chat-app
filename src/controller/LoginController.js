@@ -2,6 +2,7 @@ const onlineList = require('../util/Online')
 const User = require('../model/User')
 const userPoolConversation = require('../model/UserPoolConversation')
 const encoder = require('../util/Encoder')
+const { multipleDataToObject } = require('../util/toObject')
 
 const LENGTHCODE = 12
 
@@ -11,14 +12,22 @@ class LoginController {
     }
 
     //LOAD CURRENT ONLINE USER 
-    LoadOnlineUser(req, res, io) {
+    async LoadOnlineUser(req, res, io) {
         const user = req.body.userID
         const id = req.body.socketID
 
+        if (!user || !id) return
+
         //send notify new user is online to orther users 
         if (!onlineList.isEmpty()) {
-            Object.values(onlineList.online).forEach(socketid => {
-                io.to(socketid).emit("receiveOnline", user)
+            const findUser = await userPoolConversation.findOne({ pool_conversation_id : user })
+            const friends = multipleDataToObject(findUser.people)
+            const listfriends = friends.map(element => element.id_user)
+            
+            listfriends.forEach(userId => {
+                if (onlineList.isOnline(userId)) {
+                    io.to(onlineList.socketIdOf(userId)).emit("receiveOnline", user)
+                }
             })
         }
 
