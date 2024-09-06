@@ -40,7 +40,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // setting express-session
 app.use(session({
-    secret: 'your_secret_key', // Thay thế bằng khóa bí mật của bạn
+    secret: process.env.SECRET_KEY_SESSION, 
     resave: false,
     saveUninitialized: false
 }));
@@ -59,7 +59,7 @@ route(app, io, upload)
 
 //launch port 
 const port = process.env.NODE_LOCAL_PORT || 3000;
-httpServer.listen(port, ()=>{ console.log("server was launched successfully at",port)} )
+httpServer.listen(port, () => { console.log("server was launched successfully at",port)} )
 
 module.exports = { io }
 
