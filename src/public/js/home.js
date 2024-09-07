@@ -177,6 +177,7 @@ chatbox.addEventListener('scroll', async () => {
             let response = await fetch(`${PORT}/chat/${CHATING_CONVER_ID}/${++MGS_SLICE}`)
             if (!response.ok) throw Error("Error when load conversation data")
             let jsonResponse = await response.json()
+            console.log(jsonResponse)
             // if there are no content 
             if (jsonResponse.length === 0) {
                 MGS_SLICE = undefined

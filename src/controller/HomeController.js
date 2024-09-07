@@ -140,7 +140,7 @@ class HomeController {
        currentUserId: user is searching 
     */
     async SearchFriend(substring, curerntUserId) {
-        // load current friend of user 
+        // load current friend of this user 
         let listFriend = await this.LoadPoolConversation(curerntUserId)
         let listFriendID = [] 
         listFriend.forEach(e => {

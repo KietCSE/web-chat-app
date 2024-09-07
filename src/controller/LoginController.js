@@ -6,6 +6,37 @@ const { multipleDataToObject } = require('../util/toObject')
 
 const LENGTHCODE = 12
 
+// function roughSizeOfObject(object) {
+//     const objectList = [];
+//     const stack = [object];
+//     let bytes = 0;
+
+//     while (stack.length) {
+//         const value = stack.pop();
+
+//         if (typeof value === 'boolean') {
+//             bytes += 4;
+//         } else if (typeof value === 'string') {
+//             bytes += value.length * 2;
+//         } else if (typeof value === 'number') {
+//             bytes += 8;
+//         } else if (typeof value === 'object' && value !== null) {
+//             if (objectList.indexOf(value) === -1) {
+//                 objectList.push(value);
+
+//                 for (let i in value) {
+//                     if (value.hasOwnProperty(i)) {
+//                         bytes += i.length * 2; // Kích thước của tên thuộc tính (string)
+//                         stack.push(value[i]);
+//                     }
+//                 }
+//             }
+//         }
+//     }
+//     return bytes;
+// }
+
+
 class LoginController {
     LoginPage(req, res) { 
         res.render('login', {layout : 'another'})
@@ -35,7 +66,9 @@ class LoginController {
         if (user && id) {
             onlineList.MakeOnline(user, id)
         }
+
         console.log(onlineList.online)
+        // console.log("data: ", roughSizeOfObject(onlineList.online))
 
         res.status(200).json({status : true, data : onlineList.online})
     }

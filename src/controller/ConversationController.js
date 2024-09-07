@@ -29,14 +29,18 @@ class ConversationController {
         }   
     }
 
+    //load conversation with slide and id 
     async LoadSlideConversationById(req, res) {
         try {
             let {id, slice} = req.params
             slice = parseInt(slice, 10)
             const list = await Conversation.findOne({ id_conversation: id });
             const length = list.content.length
-
-            let listMessage = multipleDataToObject(list.content.slice(length - (slice+1)*this.MSG_PER_SLICE, length - slice*this.MSG_PER_SLICE))
+            if (length < slice*this.MSG_PER_SLICE) return []
+            // console.log("slice", slice)
+            // let listMessage = multipleDataToObject(list.content.slice(length - (slice+1)*this.MSG_PER_SLICE, length - slice*this.MSG_PER_SLICE))
+            let listMessage = multipleDataToObject(list.content.slice(Math.max(0, length - (slice + 1) * this.MSG_PER_SLICE), length - slice*this.MSG_PER_SLICE))
+            // console.log(listMessage)
             return res.json(listMessage)
         } catch (err) {
             // EXCEPTION HANDLER
