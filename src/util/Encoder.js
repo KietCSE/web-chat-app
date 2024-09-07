@@ -20,11 +20,11 @@ async function hashPassword(password) {
 }
 
 async function verifyPassword(plainPassword, hashedPassword) {
-  try {
-      return await bcrypt.compare(plainPassword, hashedPassword);
-  } catch (err) {
-      console.error('Error verifying password:', err);
-  }
+    try {
+        return await bcrypt.compare(plainPassword, hashedPassword);
+    } catch (err) {
+        console.error('Error verifying password:', err);
+    }
 }
 
 module.exports = {encodeID, hashPassword, verifyPassword}
