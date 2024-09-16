@@ -250,6 +250,7 @@ document.querySelectorAll('.blockchat').forEach(e => {
 // CLICK MAKE NEW FRIEND 
 const newfriend = document.querySelector('.search-chat button')
 const listpeople = document.querySelector('.find-friend')
+const morefriend = document.querySelector('.list-friend .more-friend')
 
 //click on new friend button
 newfriend.addEventListener('click', () => {
@@ -259,11 +260,22 @@ newfriend.addEventListener('click', () => {
     }
     listpeople.style.visibility = 'visible';
 
-    document.addEventListener('click', (event) => {
+    // morefriend.addEventListener('click', () => {console.log(1)})
+
+    document.addEventListener('click', async (event) => {
+        if (event.target == document.querySelector('.list-friend .more-friend')) {
+            const response = await fetch(`${PORT}/more-friend/${USER}/${++FRD_SLICE}`)
+            if (!response.ok) return Error("Error when load new friend")
+            const data = await response.json()
+            LoadSearchedFriend(data)
+            AddEventToCreateNewFriend()
+        }
+
         if (!listpeople.contains(event.target) && event.target !== newfriend) {
             listpeople.style.visibility = 'hidden';
         }
     });
+
 });
 
 
@@ -362,8 +374,12 @@ function LoadSearchedFriend(data) {
     })
 }
 
+console.log(document.getElementById('more-friend'))
+
 // CLICK [MORE] BUTTON TO LOAD MORE NEW FRIEND 
-document.querySelector('.list-friend .more-friend').addEventListener('click', async (event) => {
+document.getElementById('more-friend').addEventListener('click', async (event) => {
+    event.preventDefault()
+    console.log(1)
     const response = await fetch(`${PORT}/more-friend/${USER}/${++FRD_SLICE}`)
     if (!response.ok) return Error("Error when load new friend")
     const data = await response.json()

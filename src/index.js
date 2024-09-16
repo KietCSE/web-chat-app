@@ -2,7 +2,7 @@ const express = require('express')
 const path = require('path')
 const handlebars = require('express-handlebars')
 const http = require('http');
-const { Server }= require('socket.io');
+const { Server } = require('socket.io');
 // const onlineList = require('./util/Online')
 const socketServer = require('./socket')
 const session = require('express-session')
@@ -40,7 +40,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // setting express-session
 app.use(session({
-    secret: process.env.SECRET_KEY_SESSION, 
+    secret: process.env.SECRET_KEY_SESSION,
     resave: false,
     saveUninitialized: false
 }));
@@ -59,7 +59,7 @@ route(app, io, upload)
 
 //launch port 
 const port = process.env.NODE_LOCAL_PORT || 3000;
-httpServer.listen(port, () => { console.log("server was launched successfully at",port)} )
+httpServer.listen(port, () => { console.log("server was launched successfully at", port) })
 
 module.exports = { io }
 
